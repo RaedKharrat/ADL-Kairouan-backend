@@ -259,6 +259,7 @@ model BlogPost {
   coverImage String?
   gallery    String[]      @default([])
   pdfFiles   String[]      @default([])
+  videoUrl   String?
   featured   Boolean       @default(false)
   status     PublishStatus @default(DRAFT)
   publishedAt DateTime?

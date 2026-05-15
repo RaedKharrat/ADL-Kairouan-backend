@@ -24,7 +24,7 @@ const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const client_1 = require("@prisma/client");
-const pagination_dto_1 = require("../../common/dto/pagination.dto");
+const project_pagination_dto_1 = require("./dto/project-pagination.dto");
 let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
@@ -68,7 +68,7 @@ __decorate([
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
+    __metadata("design:paramtypes", [project_pagination_dto_1.ProjectPaginationDto]),
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "findPublished", null);
 __decorate([
@@ -111,7 +111,7 @@ __decorate([
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
+    __metadata("design:paramtypes", [project_pagination_dto_1.ProjectPaginationDto]),
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "findAll", null);
 __decorate([

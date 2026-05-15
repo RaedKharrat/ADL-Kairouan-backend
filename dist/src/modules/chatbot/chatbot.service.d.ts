@@ -4,9 +4,10 @@ import { PrismaService } from '../../prisma/prisma.service';
 export declare class ChatbotService implements OnModuleInit {
     private configService;
     private prisma;
-    private ai;
+    private genAI;
+    private readonly logger;
     constructor(configService: ConfigService, prisma: PrismaService);
     onModuleInit(): void;
     private initModel;
-    generateResponse(message: string, history?: any[]): Promise<any>;
+    generateResponse(message: string, history?: any[]): Promise<string>;
 }

@@ -223,6 +223,50 @@ async function main() {
     ],
   });
 
+  // ── Reports Categories ────────────────────────────────────────────────────
+  const annualReportCat = await prisma.reportCategory.upsert({ where: { slug: 'rapports-annuels' }, update: {}, create: { name: 'Rapports Annuels', slug: 'rapports-annuels' } });
+  const financialReportCat = await prisma.reportCategory.upsert({ where: { slug: 'bilans-financiers' }, update: {}, create: { name: 'Bilans Financiers', slug: 'bilans-financiers' } });
+
+  // ── Reports ───────────────────────────────────────────────────────────────
+  await prisma.report.deleteMany();
+  await prisma.report.createMany({
+    data: [
+      {
+        title: 'Bilan d\'Activité Annuel 2024',
+        description: 'Rapport complet sur les réalisations, les défis et les perspectives pour l\'année 2024.',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        fileType: 'PDF',
+        fileSize: 1024 * 1024 * 2.5, // 2.5 MB
+        year: 2024,
+        published: true,
+        featured: true,
+        categoryId: annualReportCat.id
+      },
+      {
+        title: 'Rapport de Transparence Financière S1 2025',
+        description: 'Détails des flux financiers et de l\'utilisation des subventions pour le premier semestre 2025.',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        fileType: 'PDF',
+        fileSize: 1024 * 1024 * 1.8, // 1.8 MB
+        year: 2025,
+        published: true,
+        featured: true,
+        categoryId: financialReportCat.id
+      },
+      {
+        title: 'Plan Stratégique Kairouan 2030',
+        description: 'Vision à long terme pour le développement durable de la région de Kairouan.',
+        fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        fileType: 'PDF',
+        fileSize: 1024 * 1024 * 5.2, // 5.2 MB
+        year: 2023,
+        published: true,
+        featured: false,
+        categoryId: annualReportCat.id
+      }
+    ]
+  });
+
   // ── Testimonials ──────────────────────────────────────────────────────────
   await prisma.testimonial.deleteMany();
   await prisma.testimonial.createMany({

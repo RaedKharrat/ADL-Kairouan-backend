@@ -1,11 +1,11 @@
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { ProjectPaginationDto } from './dto/project-pagination.dto';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
-    findPublished(query: PaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
+    findPublished(query: ProjectPaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         category: {
             id: string;
             name: string;
@@ -27,12 +27,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>>;
     getFeatured(limit?: number): Promise<({
         category: {
@@ -56,12 +56,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     })[]>;
     findBySlug(slug: string): Promise<{
         category: {
@@ -89,12 +89,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
     create(dto: CreateProjectDto): Promise<{
         id: string;
@@ -112,14 +112,14 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
-    findAll(query: PaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
+    findAll(query: ProjectPaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         category: {
             id: string;
             name: string;
@@ -141,12 +141,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>>;
     findOne(id: string): Promise<{
         category: {
@@ -174,12 +174,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
     update(id: string, dto: UpdateProjectDto): Promise<{
         category: {
@@ -207,12 +207,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
     togglePublish(id: string): Promise<{
         id: string;
@@ -230,12 +230,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
     toggleFeatured(id: string): Promise<{
         id: string;
@@ -253,12 +253,12 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -276,11 +276,11 @@ export declare class ProjectsController {
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
-        categoryId: string | null;
         seoTitle: string | null;
         seoDescription: string | null;
         seoKeywords: string[];
         ogImage: string | null;
         views: number;
+        categoryId: string | null;
     }>;
 }

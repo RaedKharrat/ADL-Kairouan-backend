@@ -7,6 +7,7 @@ export declare class CreateBlogPostDto {
     coverImage?: string;
     gallery?: string[];
     pdfFiles?: string[];
+    videoUrl?: string;
     featured?: boolean;
     status?: PublishStatus;
     categoryId?: string;

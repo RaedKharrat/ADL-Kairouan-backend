@@ -8,7 +8,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { Role } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { ProjectPaginationDto } from './dto/project-pagination.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -19,7 +19,7 @@ export class ProjectsController {
   @Public()
   @Get('public')
   @ApiOperation({ summary: 'Get all published projects (public)' })
-  findPublished(@Query() query: PaginationDto) {
+  findPublished(@Query() query: ProjectPaginationDto) {
     return this.projectsService.findPublished(query);
   }
 
@@ -51,7 +51,7 @@ export class ProjectsController {
   @ApiBearerAuth('JWT-auth')
   @Get()
   @ApiOperation({ summary: 'List all projects (admin)' })
-  findAll(@Query() query: PaginationDto) {
+  findAll(@Query() query: ProjectPaginationDto) {
     return this.projectsService.findAll(query);
   }
 

@@ -7,6 +7,6 @@ export declare class ChatbotController {
         history?: any[];
     }): Promise<{
         success: boolean;
-        data: any;
+        data: string;
     }>;
 }
