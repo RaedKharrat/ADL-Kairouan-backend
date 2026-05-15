@@ -1,0 +1,103 @@
+import { PrismaService } from '../../prisma/prisma.service';
+export declare class TestimonialsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    create(dto: any): import(".prisma/client").Prisma.Prisma__TestimonialClient<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+    findAll(activeOnly?: boolean): import(".prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }[]>;
+    findOne(id: string): Promise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }>;
+    update(id: string, dto: any): Promise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }>;
+    reorder(ids: string[]): Promise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }[]>;
+    getFeatured(): import(".prisma/client").Prisma.PrismaPromise<{
+        id: string;
+        name: string;
+        avatar: string | null;
+        role: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        order: number;
+        content: string;
+        featured: boolean;
+        organization: string | null;
+        rating: number | null;
+    }[]>;
+}

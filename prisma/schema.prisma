@@ -1,0 +1,577 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADL Kairouan Institutional Platform — Prisma Schema
+// PostgreSQL 16 | Prisma 5
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+enum SettingType {
+  STRING
+  JSON
+  BOOLEAN
+  NUMBER
+}
+
+enum SettingGroup {
+  GENERAL
+  SEO
+  SOCIAL
+  CONTACT
+  APPEARANCE
+  ANALYTICS
+  EMAIL
+}
+
+// ─────────────────────────────────────────────
+// USERS & AUTH
+// ─────────────────────────────────────────────
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String
+  avatar    String?
+  role      Role      @default(EDITOR)
+  isActive  Boolean   @default(true)
+  lastLogin DateTime?
+
+  // Audit
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  auditLogs   AuditLog[]
+  blogPosts   BlogPost[]
+
+  @@index([email])
+  @@index([role])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   // e.g. "CREATE", "UPDATE", "DELETE", "LOGIN", "LOGOUT"
+  entity     String   // e.g. "Project", "BlogPost"
+  entityId   String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─────────────────────────────────────────────
+// HERO SECTION
+// ─────────────────────────────────────────────
+
+model HeroSlide {
+  id       String  @id @default(cuid())
+  title    String
+  subtitle String?
+  ctaText  String?
+  ctaLink  String?
+  image    String
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@map("hero_slides")
+}
+
+// ─────────────────────────────────────────────
+// STATISTICS
+// ─────────────────────────────────────────────
+
+model Statistic {
+  id       String  @id @default(cuid())
+  label    String
+  value    String
+  icon     String?
+  suffix   String? // e.g. "+", "%", "k"
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@map("statistics")
+}
+
+// ─────────────────────────────────────────────
+// PROJECTS
+// ─────────────────────────────────────────────
+
+model ProjectCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  order       Int       @default(0)
+  projects    Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("project_categories")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String?  // Rich text (HTML)
+  coverImage  String?
+  gallery     String[] @default([])
+  pdfFiles    String[] @default([])
+  tags        String[] @default([])
+  featured    Boolean  @default(false)
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  categoryId  String?
+  category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // SEO
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[] @default([])
+  ogImage        String?
+
+  // Stats
+  views Int @default(0)
+
+  // Audit
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([categoryId])
+  @@index([deletedAt])
+  @@map("projects")
+}
+
+// ─────────────────────────────────────────────
+// PARTNERS
+// ─────────────────────────────────────────────
+
+model Partner {
+  id       String  @id @default(cuid())
+  name     String
+  logo     String
+  website  String?
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@map("partners")
+}
+
+// ─────────────────────────────────────────────
+// BLOG
+// ─────────────────────────────────────────────
+
+model BlogCategory {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  posts       BlogPost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("blog_categories")
+}
+
+model BlogTag {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  slug  String     @unique
+  posts BlogPost[] @relation("BlogPostTags")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("blog_tags")
+}
+
+model BlogPost {
+  id         String        @id @default(cuid())
+  title      String
+  slug       String        @unique
+  excerpt    String?
+  content    String?       // Rich text (HTML/JSON TipTap)
+  coverImage String?
+  gallery    String[]      @default([])
+  pdfFiles   String[]      @default([])
+  featured   Boolean       @default(false)
+  status     PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  scheduledAt DateTime?
+
+  // Reading time (auto-calculated)
+  readingTime Int?
+
+  // Author
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  // Category
+  categoryId String?
+  category   BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Tags (M2M)
+  tags BlogTag[] @relation("BlogPostTags")
+
+  // SEO
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[] @default([])
+  ogImage        String?
+
+  // Stats
+  views Int @default(0)
+
+  // Audit
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([deletedAt])
+  @@map("blog_posts")
+}
+
+// ─────────────────────────────────────────────
+// MEDIA
+// ─────────────────────────────────────────────
+
+model MediaCategory {
+  id    String       @id @default(cuid())
+  name  String
+  slug  String       @unique
+  media MediaItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("media_categories")
+}
+
+model MediaItem {
+  id         String    @id @default(cuid())
+  url        String
+  publicId   String?   // Cloudinary public_id
+  type       MediaType @default(IMAGE)
+  filename   String
+  mimeType   String?
+  size       Int?      // bytes
+  width      Int?
+  height     Int?
+  alt        String?
+  caption    String?
+  featured   Boolean   @default(false)
+
+  categoryId String?
+  category   MediaCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([categoryId])
+  @@index([featured])
+  @@map("media_items")
+}
+
+// ─────────────────────────────────────────────
+// VIDEOS
+// ─────────────────────────────────────────────
+
+model Video {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  url         String?  // direct video URL
+  youtubeId   String?  // YouTube video ID
+  thumbnail   String?
+  duration    String?
+  featured    Boolean @default(false)
+  isActive    Boolean @default(true)
+  order       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([order])
+  @@map("videos")
+}
+
+// ─────────────────────────────────────────────
+// REPORTS & TRANSPARENCY
+// ─────────────────────────────────────────────
+
+model ReportCategory {
+  id      String   @id @default(cuid())
+  name    String
+  slug    String   @unique
+  reports Report[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("report_categories")
+}
+
+model Report {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String
+  fileType    String? // PDF, XLSX, etc.
+  fileSize    Int?
+  year        Int?
+  downloads   Int     @default(0)
+  published   Boolean @default(false)
+  featured    Boolean @default(false)
+
+  categoryId String?
+  category   ReportCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year])
+  @@index([published])
+  @@index([categoryId])
+  @@map("reports")
+}
+
+// ─────────────────────────────────────────────
+// FAQ
+// ─────────────────────────────────────────────
+
+model FaqCategory {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+  faqs FAQ[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faq_categories")
+}
+
+model FAQ {
+  id       String  @id @default(cuid())
+  question String
+  answer   String
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  categoryId String?
+  category   FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([categoryId])
+  @@map("faqs")
+}
+
+// ─────────────────────────────────────────────
+// TESTIMONIALS
+// ─────────────────────────────────────────────
+
+model Testimonial {
+  id           String  @id @default(cuid())
+  name         String
+  role         String?
+  organization String?
+  content      String
+  avatar       String?
+  rating       Int?    @default(5)
+  featured     Boolean @default(false)
+  order        Int     @default(0)
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([order])
+  @@map("testimonials")
+}
+
+// ─────────────────────────────────────────────
+// CONTACT
+// ─────────────────────────────────────────────
+
+model ContactMessage {
+  id         String  @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String?
+  message    String
+  isRead     Boolean @default(false)
+  isArchived Boolean @default(false)
+  ip         String?
+  userAgent  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead])
+  @@index([isArchived])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+// ─────────────────────────────────────────────
+// NEWSLETTER
+// ─────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  ip        String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+  @@map("newsletter_subscribers")
+}
+
+// ─────────────────────────────────────────────
+// SITE SETTINGS (Key-Value Store)
+// ─────────────────────────────────────────────
+
+model SiteSetting {
+  id        String       @id @default(cuid())
+  key       String       @unique
+  value     String?
+  type      SettingType  @default(STRING)
+  group     SettingGroup @default(GENERAL)
+  label     String?
+  updatedAt DateTime     @updatedAt
+
+  @@index([key])
+  @@index([group])
+  @@map("site_settings")
+}
+
+// ─────────────────────────────────────────────
+// SEO METADATA
+// ─────────────────────────────────────────────
+
+model SeoMetadata {
+  id          String  @id @default(cuid())
+  entityType  String  // "project", "blog_post", "page", etc.
+  entityId    String  // the entity's id or slug
+  title       String?
+  description String?
+  keywords    String[] @default([])
+  ogImage     String?
+  canonical   String?
+  noIndex     Boolean  @default(false)
+  noFollow    Boolean  @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([entityType, entityId])
+  @@map("seo_metadata")
+}
+
+// ─────────────────────────────────────────────
+// CMS PAGES (Dynamic pages)
+// ─────────────────────────────────────────────
+
+model CmsPage {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  content     String?
+  status      PublishStatus @default(DRAFT)
+  template    String?       @default("default")
+
+  // SEO
+  seoTitle       String?
+  seoDescription String?
+  ogImage        String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@map("cms_pages")
+}
