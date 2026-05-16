@@ -65,13 +65,13 @@ export class ChatbotService implements OnModuleInit {
 
     try {
       const model = this.genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash",
         systemInstruction: systemInstruction
       });
 
       const formattedHistory = (history || []).map(h => ({
         role: h.role === 'model' ? 'model' : 'user',
-        parts: [{ text: h.content || h.parts?.[0]?.text || "" }]
+        parts: [{ text: String(h.content || h.parts?.[0]?.text || "") }]
       }));
 
       const chat = model.startChat({
@@ -80,9 +80,18 @@ export class ChatbotService implements OnModuleInit {
 
       const result = await chat.sendMessage(message);
       const response = await result.response;
-      return response.text();
-    } catch (error) {
+      const text = response.text();
+      
+      if (!text) throw new Error('Empty response from Gemini');
+      return text;
+    } catch (error: any) {
       this.logger.error('Gemini Chat Error:', error);
+      
+      // Provide more helpful internal messages for debugging
+      if (error?.message?.includes('API key')) {
+        return "Le service d'assistance IA n'est pas configuré (Clé API invalide).";
+      }
+      
       return "Désolé, je rencontre une petite difficulté technique. Veuillez réessayer dans quelques instants.";
     }
   }
