@@ -7,6 +7,7 @@ export declare class CreateProjectDto {
     coverImage?: string;
     gallery?: string[];
     pdfFiles?: string[];
+    videoUrl?: string;
     tags?: string[];
     featured?: boolean;
     status?: PublishStatus;

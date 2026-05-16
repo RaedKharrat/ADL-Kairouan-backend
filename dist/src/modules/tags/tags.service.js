@@ -21,7 +21,10 @@ let TagsService = class TagsService {
         return (0, slugify_1.default)(name, { lower: true, strict: true });
     }
     findAll() {
-        return this.prisma.blogTag.findMany({ orderBy: { name: 'asc' } });
+        return this.prisma.blogTag.findMany({
+            orderBy: { name: 'asc' },
+            include: { _count: { select: { posts: true } } }
+        });
     }
     findOne(id) {
         return this.prisma.blogTag.findUnique({ where: { id }, include: { _count: { select: { posts: true } } } });

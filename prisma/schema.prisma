@@ -170,6 +170,7 @@ model Project {
   coverImage  String?
   gallery     String[] @default([])
   pdfFiles    String[] @default([])
+  videoUrl    String?
   tags        String[] @default([])
   featured    Boolean  @default(false)
   status      PublishStatus @default(DRAFT)
@@ -268,6 +269,10 @@ model BlogPost {
   // Reading time (auto-calculated)
   readingTime Int?
 
+  // Engagement
+  likes    Int           @default(0)
+  comments BlogComment[]
+
   // Author
   authorId String?
   author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -300,6 +305,25 @@ model BlogPost {
   @@index([authorId])
   @@index([deletedAt])
   @@map("blog_posts")
+}
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  // Optional for guests
+  content   String
+  isAdmin   Boolean  @default(false)
+  isPublic  Boolean  @default(true) // For now default to public
+  
+  blogPostId String
+  blogPost   BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blogPostId])
+  @@index([createdAt])
+  @@map("blog_comments")
 }
 
 // ─────────────────────────────────────────────

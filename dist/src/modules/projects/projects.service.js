@@ -107,6 +107,12 @@ let ProjectsService = class ProjectsService {
             throw new common_1.NotFoundException('Project not found');
         return this.prisma.project.update({ where: { id }, data: { featured: !project.featured } });
     }
+    async archive(id) {
+        const project = await this.prisma.project.findUnique({ where: { id, deletedAt: null } });
+        if (!project)
+            throw new common_1.NotFoundException('Project not found');
+        return this.prisma.project.update({ where: { id }, data: { status: client_1.PublishStatus.ARCHIVED } });
+    }
     async getFeatured(limit = 6) {
         return this.prisma.project.findMany({
             where: { featured: true, status: client_1.PublishStatus.PUBLISHED, deletedAt: null },

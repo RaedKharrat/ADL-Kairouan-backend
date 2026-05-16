@@ -18,7 +18,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 4000);
-  const frontendUrl = configService.get<string>('FRONTEND_URL', 'https://adl-kairouan.vercel.app');
+  const frontendUrl = configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
 
   // Security
   app.use(
@@ -29,7 +29,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: [frontendUrl, 'https://adl-kairouan.vercel.app'],
+    origin: [frontendUrl, 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

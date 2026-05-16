@@ -2,7 +2,11 @@ import { CategoriesService } from './categories.service';
 export declare class CategoriesController {
     private readonly categoriesService;
     constructor(categoriesService: CategoriesService);
-    getProjectCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    getProjectCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            projects: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
@@ -10,36 +14,52 @@ export declare class CategoriesController {
         slug: string;
         description: string | null;
         order: number;
-    }[]>;
-    getBlogCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    })[]>;
+    getBlogCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            posts: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
         description: string | null;
-    }[]>;
-    getMediaCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    })[]>;
+    getMediaCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            media: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
-    getReportCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    })[]>;
+    getReportCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            reports: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
-    getFaqCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    })[]>;
+    getFaqCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            faqs: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
+    })[]>;
     createProject(body: {
         name: string;
         description?: string;

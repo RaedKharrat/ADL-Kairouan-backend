@@ -25,6 +25,7 @@ let DashboardController = class DashboardController {
     getTopProjects() { return this.dashboardService.getTopProjects(); }
     getTopBlogPosts() { return this.dashboardService.getTopBlogPosts(); }
     getMonthlyStats() { return this.dashboardService.getMonthlyStats(); }
+    getEngagementStats() { return this.dashboardService.getEngagementStats(); }
 };
 exports.DashboardController = DashboardController;
 __decorate([
@@ -69,6 +70,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], DashboardController.prototype, "getMonthlyStats", null);
+__decorate([
+    (0, common_1.Get)('engagement'),
+    openapi.ApiResponse({ status: 200 }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], DashboardController.prototype, "getEngagementStats", null);
 exports.DashboardController = DashboardController = __decorate([
     (0, swagger_1.ApiTags)('dashboard'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

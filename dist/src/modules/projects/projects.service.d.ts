@@ -19,6 +19,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -52,6 +53,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -84,6 +86,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -117,6 +120,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -150,6 +154,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -183,6 +188,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -206,6 +212,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -229,6 +236,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -252,6 +260,31 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
+        tags: string[];
+        featured: boolean;
+        status: import(".prisma/client").$Enums.PublishStatus;
+        publishedAt: Date | null;
+        seoTitle: string | null;
+        seoDescription: string | null;
+        seoKeywords: string[];
+        ogImage: string | null;
+        views: number;
+        categoryId: string | null;
+    }>;
+    archive(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        deletedAt: Date | null;
+        slug: string;
+        title: string;
+        excerpt: string | null;
+        content: string | null;
+        coverImage: string | null;
+        gallery: string[];
+        pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
@@ -281,6 +314,7 @@ export declare class ProjectsService {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         tags: string[];
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;

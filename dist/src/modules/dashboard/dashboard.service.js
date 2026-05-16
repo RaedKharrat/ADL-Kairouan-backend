@@ -78,9 +78,71 @@ let DashboardService = class DashboardService {
     async getMonthlyStats() {
         const months = [];
         const now = new Date();
-        for (let i = 11; i >= 0; i--) {
-            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            months.push({ year: d.getFullYear(), month: d.getMonth() + 1, label: d.toLocaleString('default', { month: 'short', year: '2-digit' }) });
+        for (let i = 5; i >= 0; i--) {
+            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+            const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
+            const [projectCount, blogCount] = await Promise.all([
+                this.prisma.project.count({
+                    where: {
+                        createdAt: {
+                            gte: monthDate,
+                            lt: nextMonthDate,
+                        },
+                        deletedAt: null,
+                    },
+                }),
+                this.prisma.blogPost.count({
+                    where: {
+                        createdAt: {
+                            gte: monthDate,
+                            lt: nextMonthDate,
+                        },
+                        deletedAt: null,
+                    },
+                }),
+            ]);
+            months.push({
+                name: label,
+                projets: projectCount,
+                articles: blogCount,
+            });
+        }
+        return months;
+    }
+    async getEngagementStats() {
+        const months = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+            const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
+            const [commentCount] = await Promise.all([
+                this.prisma.blogComment.count({
+                    where: {
+                        createdAt: {
+                            gte: monthDate,
+                            lt: nextMonthDate,
+                        },
+                        isPublic: true,
+                    },
+                }),
+            ]);
+            const [blogViews, projectViews] = await Promise.all([
+                this.prisma.blogPost.aggregate({
+                    where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
+                    _sum: { views: true }
+                }),
+                this.prisma.project.aggregate({
+                    where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
+                    _sum: { views: true }
+                })
+            ]);
+            months.push({
+                name: label,
+                commentaires: commentCount,
+                vues: (blogViews._sum.views || 0) + (projectViews._sum.views || 0),
+            });
         }
         return months;
     }

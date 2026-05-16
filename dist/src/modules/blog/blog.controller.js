@@ -19,13 +19,13 @@ const swagger_1 = require("@nestjs/swagger");
 const blog_service_1 = require("./blog.service");
 const create_blog_post_dto_1 = require("./dto/create-blog-post.dto");
 const update_blog_post_dto_1 = require("./dto/update-blog-post.dto");
+const blog_pagination_dto_1 = require("./dto/blog-pagination.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const client_1 = require("@prisma/client");
-const pagination_dto_1 = require("../../common/dto/pagination.dto");
 let BlogController = class BlogController {
     constructor(blogService) {
         this.blogService = blogService;
@@ -34,6 +34,9 @@ let BlogController = class BlogController {
     getFeatured(limit) { return this.blogService.getFeatured(limit); }
     findBySlug(slug) { return this.blogService.findBySlug(slug); }
     getRelated(id, limit) { return this.blogService.getRelated(id, limit); }
+    like(id) { return this.blogService.like(id); }
+    addComment(id, dto) { return this.blogService.addComment(id, dto); }
+    getComments(id) { return this.blogService.getComments(id); }
     create(dto, authorId) { return this.blogService.create(dto, authorId); }
     findAll(query) { return this.blogService.findAll(query); }
     findOne(id) { return this.blogService.findOne(id); }
@@ -49,7 +52,7 @@ __decorate([
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
+    __metadata("design:paramtypes", [blog_pagination_dto_1.BlogPaginationDto]),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "findPublished", null);
 __decorate([
@@ -81,6 +84,34 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "getRelated", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)(':id/like'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "like", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)(':id/comments'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "addComment", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)(':id/comments'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "getComments", null);
+__decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
     (0, common_1.Post)(),
@@ -99,7 +130,7 @@ __decorate([
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
+    __metadata("design:paramtypes", [blog_pagination_dto_1.BlogPaginationDto]),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "findAll", null);
 __decorate([

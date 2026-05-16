@@ -106,6 +106,12 @@ export class ProjectsService {
     return this.prisma.project.update({ where: { id }, data: { featured: !project.featured } });
   }
 
+  async archive(id: string) {
+    const project = await this.prisma.project.findUnique({ where: { id, deletedAt: null } });
+    if (!project) throw new NotFoundException('Project not found');
+    return this.prisma.project.update({ where: { id }, data: { status: PublishStatus.ARCHIVED } });
+  }
+
   async getFeatured(limit = 6) {
     return this.prisma.project.findMany({
       where: { featured: true, status: PublishStatus.PUBLISHED, deletedAt: null },

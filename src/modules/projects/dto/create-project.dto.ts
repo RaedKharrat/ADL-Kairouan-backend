@@ -39,6 +39,11 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsArray()
   tags?: string[];
 

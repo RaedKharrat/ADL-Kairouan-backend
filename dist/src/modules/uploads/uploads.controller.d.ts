@@ -9,7 +9,7 @@ export declare class UploadsController {
             publicId: string;
             size: number;
             format: string;
-            resourceType: "image" | "video" | "raw" | "auto";
+            resourceType: "video" | "raw" | "image" | "auto";
             width: number;
             height: number;
         };
@@ -21,7 +21,7 @@ export declare class UploadsController {
             publicId: string;
             size: number;
             format: string;
-            resourceType: "image" | "video" | "raw" | "auto";
+            resourceType: "video" | "raw" | "image" | "auto";
             width: number;
             height: number;
         }[];

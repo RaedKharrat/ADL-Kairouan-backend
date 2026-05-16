@@ -14,10 +14,11 @@ const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
+const client_1 = require("@prisma/client");
 const pagination_dto_1 = require("../../../common/dto/pagination.dto");
 class ProjectPaginationDto extends pagination_dto_1.PaginationDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { categoryId: { required: false, type: () => String }, featured: { required: false, type: () => Boolean } };
+        return { categoryId: { required: false, type: () => String }, featured: { required: false, type: () => Boolean }, status: { required: false, type: () => Object } };
     }
 }
 exports.ProjectPaginationDto = ProjectPaginationDto;
@@ -34,4 +35,10 @@ __decorate([
     (0, class_transformer_1.Type)(() => Boolean),
     __metadata("design:type", Boolean)
 ], ProjectPaginationDto.prototype, "featured", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: client_1.PublishStatus }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(client_1.PublishStatus),
+    __metadata("design:type", String)
+], ProjectPaginationDto.prototype, "status", void 0);
 //# sourceMappingURL=project-pagination.dto.js.map

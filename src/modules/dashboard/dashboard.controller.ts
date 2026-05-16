@@ -16,4 +16,5 @@ export class DashboardController {
   @Get('top-projects') getTopProjects() { return this.dashboardService.getTopProjects(); }
   @Get('top-posts') getTopBlogPosts() { return this.dashboardService.getTopBlogPosts(); }
   @Get('monthly-stats') getMonthlyStats() { return this.dashboardService.getMonthlyStats(); }
+  @Get('engagement') getEngagementStats() { return this.dashboardService.getEngagementStats(); }
 }

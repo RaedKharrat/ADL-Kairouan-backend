@@ -1,6 +1,7 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PublishStatus } from '@prisma/client';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export class ProjectPaginationDto extends PaginationDto {
@@ -14,4 +15,9 @@ export class ProjectPaginationDto extends PaginationDto {
   @IsBoolean()
   @Type(() => Boolean)
   featured?: boolean;
+
+  @ApiPropertyOptional({ enum: PublishStatus })
+  @IsOptional()
+  @IsEnum(PublishStatus)
+  status?: PublishStatus;
 }

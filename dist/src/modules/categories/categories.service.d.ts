@@ -3,7 +3,11 @@ export declare class CategoriesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     private slug;
-    findProjectCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    findProjectCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            projects: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
@@ -11,7 +15,7 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
         order: number;
-    }[]>;
+    })[]>;
     createProjectCategory(data: {
         name: string;
         description?: string;
@@ -47,14 +51,18 @@ export declare class CategoriesService {
         description: string | null;
         order: number;
     }>;
-    findBlogCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    findBlogCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            posts: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
         description: string | null;
-    }[]>;
+    })[]>;
     createBlogCategory(data: {
         name: string;
         description?: string;
@@ -85,13 +93,17 @@ export declare class CategoriesService {
         slug: string;
         description: string | null;
     }>;
-    findMediaCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    findMediaCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            media: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
+    })[]>;
     createMediaCategory(data: {
         name: string;
     }): import(".prisma/client").Prisma.Prisma__MediaCategoryClient<{
@@ -108,13 +120,17 @@ export declare class CategoriesService {
         updatedAt: Date;
         slug: string;
     }>;
-    findReportCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    findReportCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            reports: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
+    })[]>;
     createReportCategory(data: {
         name: string;
     }): import(".prisma/client").Prisma.Prisma__ReportCategoryClient<{
@@ -131,13 +147,17 @@ export declare class CategoriesService {
         updatedAt: Date;
         slug: string;
     }>;
-    findFaqCategories(): import(".prisma/client").Prisma.PrismaPromise<{
+    findFaqCategories(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            faqs: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
+    })[]>;
     createFaqCategory(data: {
         name: string;
     }): import(".prisma/client").Prisma.Prisma__FaqCategoryClient<{

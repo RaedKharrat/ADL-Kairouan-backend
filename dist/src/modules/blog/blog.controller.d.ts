@@ -1,11 +1,11 @@
 import { BlogService } from './blog.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { BlogPaginationDto } from './dto/blog-pagination.dto';
 export declare class BlogController {
     private readonly blogService;
     constructor(blogService: BlogService);
-    findPublished(query: PaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
+    findPublished(query: BlogPaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         tags: {
             id: string;
             name: string;
@@ -21,6 +21,9 @@ export declare class BlogController {
             name: string;
             avatar: string | null;
         } | null;
+        _count: {
+            comments: number;
+        };
     } & {
         id: string;
         createdAt: Date;
@@ -33,6 +36,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -42,9 +46,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>>;
     getFeatured(limit?: number): Promise<({
@@ -70,6 +74,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -79,9 +84,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     })[]>;
     findBySlug(slug: string): Promise<{
@@ -117,6 +122,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -126,9 +132,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
     getRelated(id: string, limit?: number): Promise<({
@@ -149,6 +155,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -158,11 +165,41 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     })[]>;
+    like(id: string): Promise<{
+        id: string;
+        likes: number;
+    }>;
+    addComment(id: string, dto: {
+        name: string;
+        content: string;
+        email?: string;
+    }): Promise<{
+        id: string;
+        email: string | null;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        content: string;
+        isPublic: boolean;
+        isAdmin: boolean;
+        blogPostId: string;
+    }>;
+    getComments(id: string): Promise<{
+        id: string;
+        email: string | null;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        content: string;
+        isPublic: boolean;
+        isAdmin: boolean;
+        blogPostId: string;
+    }[]>;
     create(dto: CreateBlogPostDto, authorId: string): Promise<{
         tags: {
             id: string;
@@ -196,6 +233,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -205,12 +243,12 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
-    findAll(query: PaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
+    findAll(query: BlogPaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         tags: {
             id: string;
             name: string;
@@ -226,6 +264,9 @@ export declare class BlogController {
             name: string;
             avatar: string | null;
         } | null;
+        _count: {
+            comments: number;
+        };
     } & {
         id: string;
         createdAt: Date;
@@ -238,6 +279,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -247,9 +289,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>>;
     findOne(id: string): Promise<{
@@ -285,6 +327,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -294,9 +337,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
     update(id: string, dto: UpdateBlogPostDto): Promise<{
@@ -332,6 +375,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -341,9 +385,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
     togglePublish(id: string): Promise<{
@@ -358,6 +402,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -367,9 +412,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
     toggleFeatured(id: string): Promise<{
@@ -384,6 +429,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -393,9 +439,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
     remove(id: string): Promise<{
@@ -410,6 +456,7 @@ export declare class BlogController {
         coverImage: string | null;
         gallery: string[];
         pdfFiles: string[];
+        videoUrl: string | null;
         featured: boolean;
         status: import(".prisma/client").$Enums.PublishStatus;
         publishedAt: Date | null;
@@ -419,9 +466,9 @@ export declare class BlogController {
         ogImage: string | null;
         views: number;
         categoryId: string | null;
-        videoUrl: string | null;
         scheduledAt: Date | null;
         readingTime: number | null;
+        likes: number;
         authorId: string | null;
     }>;
 }

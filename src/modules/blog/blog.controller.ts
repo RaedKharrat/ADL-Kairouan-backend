@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { BlogService } from './blog.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
+import { BlogPaginationDto } from './dto/blog-pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -16,17 +17,21 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
-  @Public() @Get('public') findPublished(@Query() query: PaginationDto) { return this.blogService.findPublished(query); }
+  @Public() @Get('public') findPublished(@Query() query: BlogPaginationDto) { return this.blogService.findPublished(query); }
   @Public() @Get('featured') getFeatured(@Query('limit') limit?: number) { return this.blogService.getFeatured(limit); }
   @Public() @Get('slug/:slug') findBySlug(@Param('slug') slug: string) { return this.blogService.findBySlug(slug); }
   @Public() @Get(':id/related') getRelated(@Param('id') id: string, @Query('limit') limit?: number) { return this.blogService.getRelated(id, limit); }
+
+  @Public() @Post(':id/like') like(@Param('id') id: string) { return this.blogService.like(id); }
+  @Public() @Post(':id/comments') addComment(@Param('id') id: string, @Body() dto: { name: string; content: string; email?: string }) { return this.blogService.addComment(id, dto); }
+  @Public() @Get(':id/comments') getComments(@Param('id') id: string) { return this.blogService.getComments(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Post() @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
   create(@Body() dto: CreateBlogPostDto, @CurrentUser('id') authorId: string) { return this.blogService.create(dto, authorId); }
 
   @UseGuards(JwtAuthGuard) @ApiBearerAuth('JWT-auth')
-  @Get() findAll(@Query() query: PaginationDto) { return this.blogService.findAll(query); }
+  @Get() findAll(@Query() query: BlogPaginationDto) { return this.blogService.findAll(query); }
 
   @UseGuards(JwtAuthGuard) @ApiBearerAuth('JWT-auth')
   @Get(':id') findOne(@Param('id') id: string) { return this.blogService.findOne(id); }

@@ -67,6 +67,9 @@ let BlogService = class BlogService {
                     category: { select: { id: true, name: true, slug: true } },
                     tags: { select: { id: true, name: true, slug: true } },
                     author: { select: { id: true, name: true, avatar: true } },
+                    _count: {
+                        select: { comments: { where: { isPublic: true } } }
+                    }
                 },
                 orderBy: { [sortBy]: sortOrder },
             }),
@@ -170,6 +173,30 @@ let BlogService = class BlogService {
             take: limit,
             include: { category: { select: { id: true, name: true, slug: true } } },
             orderBy: { publishedAt: 'desc' },
+        });
+    }
+    async like(id) {
+        return this.prisma.blogPost.update({
+            where: { id },
+            data: { likes: { increment: 1 } },
+            select: { id: true, likes: true }
+        });
+    }
+    async addComment(id, dto) {
+        return this.prisma.blogComment.create({
+            data: {
+                name: dto.name,
+                content: dto.content,
+                email: dto.email,
+                blogPostId: id,
+                isPublic: true,
+            }
+        });
+    }
+    async getComments(postId) {
+        return this.prisma.blogComment.findMany({
+            where: { blogPostId: postId, isPublic: true },
+            orderBy: { createdAt: 'desc' }
         });
     }
 };

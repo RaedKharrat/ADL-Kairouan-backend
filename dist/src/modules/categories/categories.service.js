@@ -21,7 +21,10 @@ let CategoriesService = class CategoriesService {
         return (0, slugify_1.default)(name, { lower: true, strict: true });
     }
     findProjectCategories() {
-        return this.prisma.projectCategory.findMany({ orderBy: { order: 'asc' } });
+        return this.prisma.projectCategory.findMany({
+            orderBy: { order: 'asc' },
+            include: { _count: { select: { projects: true } } }
+        });
     }
     createProjectCategory(data) {
         return this.prisma.projectCategory.create({ data: { ...data, slug: this.slug(data.name) } });
@@ -39,16 +42,26 @@ let CategoriesService = class CategoriesService {
         return this.prisma.projectCategory.delete({ where: { id } });
     }
     findBlogCategories() {
-        return this.prisma.blogCategory.findMany({ orderBy: { name: 'asc' } });
+        return this.prisma.blogCategory.findMany({
+            orderBy: { name: 'asc' },
+            include: { _count: { select: { posts: true } } }
+        });
     }
     createBlogCategory(data) {
-        return this.prisma.blogCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+        return this.prisma.blogCategory.create({ data: { name: data.name, description: data.description, slug: this.slug(data.name) } });
     }
     async updateBlogCategory(id, data) {
         const cat = await this.prisma.blogCategory.findUnique({ where: { id } });
         if (!cat)
             throw new common_1.NotFoundException('Blog category not found');
-        return this.prisma.blogCategory.update({ where: { id }, data: { ...data, ...(data.name && { slug: this.slug(data.name) }) } });
+        return this.prisma.blogCategory.update({
+            where: { id },
+            data: {
+                name: data.name,
+                description: data.description,
+                ...(data.name && { slug: this.slug(data.name) })
+            }
+        });
     }
     async removeBlogCategory(id) {
         const cat = await this.prisma.blogCategory.findUnique({ where: { id } });
@@ -57,28 +70,37 @@ let CategoriesService = class CategoriesService {
         return this.prisma.blogCategory.delete({ where: { id } });
     }
     findMediaCategories() {
-        return this.prisma.mediaCategory.findMany({ orderBy: { name: 'asc' } });
+        return this.prisma.mediaCategory.findMany({
+            orderBy: { name: 'asc' },
+            include: { _count: { select: { media: true } } }
+        });
     }
     createMediaCategory(data) {
-        return this.prisma.mediaCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+        return this.prisma.mediaCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
     }
     async removeMediaCategory(id) {
         return this.prisma.mediaCategory.delete({ where: { id } });
     }
     findReportCategories() {
-        return this.prisma.reportCategory.findMany({ orderBy: { name: 'asc' } });
+        return this.prisma.reportCategory.findMany({
+            orderBy: { name: 'asc' },
+            include: { _count: { select: { reports: true } } }
+        });
     }
     createReportCategory(data) {
-        return this.prisma.reportCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+        return this.prisma.reportCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
     }
     async removeReportCategory(id) {
         return this.prisma.reportCategory.delete({ where: { id } });
     }
     findFaqCategories() {
-        return this.prisma.faqCategory.findMany({ orderBy: { name: 'asc' } });
+        return this.prisma.faqCategory.findMany({
+            orderBy: { name: 'asc' },
+            include: { _count: { select: { faqs: true } } }
+        });
     }
     createFaqCategory(data) {
-        return this.prisma.faqCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+        return this.prisma.faqCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
     }
     async removeFaqCategory(id) {
         return this.prisma.faqCategory.delete({ where: { id } });

@@ -2,13 +2,17 @@ import { TagsService } from './tags.service';
 export declare class TagsController {
     private readonly tagsService;
     constructor(tagsService: TagsService);
-    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
+    findAll(): import(".prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            posts: number;
+        };
+    } & {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
-    }[]>;
+    })[]>;
     findOne(id: string): import(".prisma/client").Prisma.Prisma__BlogTagClient<({
         _count: {
             posts: number;

@@ -75,8 +75,13 @@ export declare class DashboardService {
         views: number;
     }[]>;
     getMonthlyStats(): Promise<{
-        year: number;
-        month: number;
-        label: string;
+        name: string;
+        projets: number;
+        articles: number;
+    }[]>;
+    getEngagementStats(): Promise<{
+        name: string;
+        commentaires: number;
+        vues: number;
     }[]>;
 }
