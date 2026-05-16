@@ -39,13 +39,20 @@ export class CategoriesService {
   }
 
   createBlogCategory(data: { name: string; description?: string }) {
-    return this.prisma.blogCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+    return this.prisma.blogCategory.create({ data: { name: data.name, description: data.description, slug: this.slug(data.name) } });
   }
 
   async updateBlogCategory(id: string, data: Partial<{ name: string; description: string }>) {
     const cat = await this.prisma.blogCategory.findUnique({ where: { id } });
     if (!cat) throw new NotFoundException('Blog category not found');
-    return this.prisma.blogCategory.update({ where: { id }, data: { ...data, ...(data.name && { slug: this.slug(data.name) }) } });
+    return this.prisma.blogCategory.update({ 
+      where: { id }, 
+      data: { 
+        name: data.name, 
+        description: data.description, 
+        ...(data.name && { slug: this.slug(data.name) }) 
+      } 
+    });
   }
 
   async removeBlogCategory(id: string) {
@@ -61,7 +68,7 @@ export class CategoriesService {
   }
 
   createMediaCategory(data: { name: string }) {
-    return this.prisma.mediaCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+    return this.prisma.mediaCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
   }
 
   async removeMediaCategory(id: string) {
@@ -75,7 +82,7 @@ export class CategoriesService {
   }
 
   createReportCategory(data: { name: string }) {
-    return this.prisma.reportCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+    return this.prisma.reportCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
   }
 
   async removeReportCategory(id: string) {
@@ -89,7 +96,7 @@ export class CategoriesService {
   }
 
   createFaqCategory(data: { name: string }) {
-    return this.prisma.faqCategory.create({ data: { ...data, slug: this.slug(data.name) } });
+    return this.prisma.faqCategory.create({ data: { name: data.name, slug: this.slug(data.name) } });
   }
 
   async removeFaqCategory(id: string) {

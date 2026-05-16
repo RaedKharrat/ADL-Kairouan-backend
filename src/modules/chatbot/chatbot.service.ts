@@ -11,7 +11,7 @@ export class ChatbotService implements OnModuleInit {
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
   onModuleInit() {
     this.initModel();
@@ -87,7 +87,7 @@ export class ChatbotService implements OnModuleInit {
 
       // 4. Call the new SDK — systemInstruction lives inside config
       const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.5-flash',
         contents,
         config: {
           systemInstruction,
