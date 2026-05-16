@@ -87,7 +87,7 @@ export class ChatbotService implements OnModuleInit {
 
       // 4. Call the new SDK — systemInstruction lives inside config
       const response = await this.ai.models.generateContent({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-3-flash-preview',
         contents,
         config: {
           systemInstruction,
