@@ -4,7 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export declare class ChatbotService implements OnModuleInit {
     private configService;
     private prisma;
-    private genAI;
+    private ai;
     private readonly logger;
     constructor(configService: ConfigService, prisma: PrismaService);
     onModuleInit(): void;

@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ChatbotService implements OnModuleInit {
-  private genAI: GoogleGenerativeAI;
+  private ai: GoogleGenAI | null = null;
   private readonly logger = new Logger(ChatbotService.name);
 
   constructor(
@@ -18,25 +18,30 @@ export class ChatbotService implements OnModuleInit {
   }
 
   private initModel() {
-    if (this.genAI) return;
+    if (this.ai) return;
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     if (!apiKey) {
       this.logger.warn('GEMINI_API_KEY is not defined. Chatbot will not work.');
       return;
     }
-    this.genAI = new GoogleGenerativeAI(apiKey);
+    this.ai = new GoogleGenAI({ apiKey });
+    this.logger.log('GoogleGenAI (new SDK) initialized successfully.');
   }
 
   async generateResponse(message: string, history: any[] = []) {
     this.initModel();
 
-    if (!this.genAI) {
+    if (!this.ai) {
       return "Le service d'assistance IA est actuellement en maintenance (clé API manquante). Veuillez réessayer plus tard.";
     }
 
-    // 1. Fetch dynamic context
+    // 1. Fetch dynamic context from DB
     const [projects, stats, rawSettings] = await Promise.all([
-      this.prisma.project.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, take: 5, select: { title: true, slug: true, excerpt: true } }),
+      this.prisma.project.findMany({
+        where: { status: 'PUBLISHED', deletedAt: null },
+        take: 5,
+        select: { title: true, slug: true, excerpt: true },
+      }),
       this.prisma.statistic.findMany({ where: { isActive: true }, take: 4 }),
       this.prisma.siteSetting.findMany({
         where: { group: { in: ['GENERAL', 'SOCIAL', 'CONTACT'] } },
@@ -52,46 +57,57 @@ export class ChatbotService implements OnModuleInit {
       CONTEXTE ACTUEL DE LA PLATEFORME :
       - Nom du site : ${settings.site_name || 'ADL Kairouan'}
       - Description : ${settings.site_description || 'Vision Urbaine 2030'}
-      - Projets récents : ${projects.map((p: any) => `${p.title}`).join(', ')}
-      - Chiffres clés : ${stats.map((s: any) => `${s.label}: ${s.value}${s.suffix || ''}`).join(', ')}
+      - Projets récents : ${projects.map((p: any) => p.title).join(', ') || 'Aucun projet récent'}
+      - Chiffres clés : ${stats.map((s: any) => `${s.label}: ${s.value}${s.suffix || ''}`).join(', ') || 'Non disponible'}
       - Contact : ${settings.contact_email || 'contact@adlkairouan.tn'}
 
       DIRECTIVES :
       1. Sois professionnel, courtois et institutionnel.
-      2. Réponds en français.
+      2. Réponds toujours en français.
       3. Ne parle jamais de politique partisane.
-      4. Garde tes réponses concises.
+      4. Garde tes réponses concises (3-5 phrases maximum).
     `;
 
     try {
-      const model = this.genAI.getGenerativeModel({ 
-        model: "gemini-2.0-flash",
-        systemInstruction: systemInstruction
-      });
-
-      const formattedHistory = (history || []).map(h => ({
+      // 2. Build conversation history as 'contents' array
+      // The new SDK uses { role, parts: [{ text }] } format
+      const formattedHistory = (history || []).map((h) => ({
         role: h.role === 'model' ? 'model' : 'user',
-        parts: [{ text: String(h.content || h.parts?.[0]?.text || "") }]
+        parts: [{ text: String(h.content || h.parts?.[0]?.text || '') }],
       }));
 
-      const chat = model.startChat({
-        history: formattedHistory,
+      // 3. Append the current user message
+      const contents = [
+        ...formattedHistory,
+        {
+          role: 'user',
+          parts: [{ text: message }],
+        },
+      ];
+
+      // 4. Call the new SDK — systemInstruction lives inside config
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents,
+        config: {
+          systemInstruction,
+        },
       });
 
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      const text = response.text();
-      
+      const text = response.text;
+
       if (!text) throw new Error('Empty response from Gemini');
       return text;
     } catch (error: any) {
-      this.logger.error('Gemini Chat Error:', error);
-      
-      // Provide more helpful internal messages for debugging
-      if (error?.message?.includes('API key')) {
+      this.logger.error('Gemini Chat Error:', error?.message || error);
+
+      if (error?.message?.includes('API key') || error?.message?.includes('api key')) {
         return "Le service d'assistance IA n'est pas configuré (Clé API invalide).";
       }
-      
+      if (error?.message?.includes('quota') || error?.message?.includes('rate')) {
+        return "Le service est temporairement indisponible (quota dépassé). Veuillez réessayer dans quelques minutes.";
+      }
+
       return "Désolé, je rencontre une petite difficulté technique. Veuillez réessayer dans quelques instants.";
     }
   }
