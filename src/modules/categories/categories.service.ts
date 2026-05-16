@@ -13,7 +13,10 @@ export class CategoriesService {
   // ─── Project Categories ───────────────────────────────────────────────────
 
   findProjectCategories() {
-    return this.prisma.projectCategory.findMany({ orderBy: { order: 'asc' } });
+    return this.prisma.projectCategory.findMany({ 
+      orderBy: { order: 'asc' },
+      include: { _count: { select: { projects: true } } }
+    });
   }
 
   createProjectCategory(data: { name: string; description?: string; order?: number }) {
@@ -35,7 +38,10 @@ export class CategoriesService {
   // ─── Blog Categories ──────────────────────────────────────────────────────
 
   findBlogCategories() {
-    return this.prisma.blogCategory.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.blogCategory.findMany({ 
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { posts: true } } }
+    });
   }
 
   createBlogCategory(data: { name: string; description?: string }) {
@@ -64,7 +70,10 @@ export class CategoriesService {
   // ─── Media Categories ─────────────────────────────────────────────────────
 
   findMediaCategories() {
-    return this.prisma.mediaCategory.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.mediaCategory.findMany({ 
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { media: true } } }
+    });
   }
 
   createMediaCategory(data: { name: string }) {
@@ -78,7 +87,10 @@ export class CategoriesService {
   // ─── Report Categories ────────────────────────────────────────────────────
 
   findReportCategories() {
-    return this.prisma.reportCategory.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.reportCategory.findMany({ 
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { reports: true } } }
+    });
   }
 
   createReportCategory(data: { name: string }) {
@@ -92,7 +104,10 @@ export class CategoriesService {
   // ─── FAQ Categories ───────────────────────────────────────────────────────
 
   findFaqCategories() {
-    return this.prisma.faqCategory.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.faqCategory.findMany({ 
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { faqs: true } } }
+    });
   }
 
   createFaqCategory(data: { name: string }) {

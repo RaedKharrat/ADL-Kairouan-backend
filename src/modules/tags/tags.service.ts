@@ -11,7 +11,10 @@ export class TagsService {
   }
 
   findAll() {
-    return this.prisma.blogTag.findMany({ orderBy: { name: 'asc' } });
+    return this.prisma.blogTag.findMany({ 
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { posts: true } } }
+    });
   }
 
   findOne(id: string) {
