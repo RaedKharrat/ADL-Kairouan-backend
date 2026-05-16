@@ -83,7 +83,7 @@ let ChatbotService = ChatbotService_1 = class ChatbotService {
                 },
             ];
             const response = await this.ai.models.generateContent({
-                model: 'gemini-2.0-flash',
+                model: 'gemini-1.5-flash',
                 contents,
                 config: {
                     systemInstruction,
@@ -95,12 +95,22 @@ let ChatbotService = ChatbotService_1 = class ChatbotService {
             return text;
         }
         catch (error) {
-            this.logger.error('Gemini Chat Error:', error?.message || error);
-            if (error?.message?.includes('API key') || error?.message?.includes('api key')) {
+            this.logger.error('Gemini Chat Error — full details:', JSON.stringify({
+                message: error?.message,
+                status: error?.status,
+                statusText: error?.statusText,
+                errorDetails: error?.errorDetails,
+                stack: error?.stack?.split('\n')[0],
+            }));
+            const msg = error?.message || JSON.stringify(error) || '';
+            if (msg.includes('API key') || msg.includes('api key') || msg.includes('API_KEY')) {
                 return "Le service d'assistance IA n'est pas configuré (Clé API invalide).";
             }
-            if (error?.message?.includes('quota') || error?.message?.includes('rate')) {
-                return "Le service est temporairement indisponible (quota dépassé). Veuillez réessayer dans quelques minutes.";
+            if (msg.includes('quota') || msg.includes('rate') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('429')) {
+                return "Le service est temporairement limité. Veuillez réessayer dans quelques instants.";
+            }
+            if (msg.includes('not found') || msg.includes('404') || msg.includes('MODEL_NOT_FOUND')) {
+                return "Modèle IA non disponible. Contactez l'administrateur.";
             }
             return "Désolé, je rencontre une petite difficulté technique. Veuillez réessayer dans quelques instants.";
         }

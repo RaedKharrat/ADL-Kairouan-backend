@@ -23,11 +23,35 @@ let UploadsController = class UploadsController {
     constructor(uploadsService) {
         this.uploadsService = uploadsService;
     }
-    uploadSingle(file, categoryId) {
-        return this.uploadsService.uploadFile(file, categoryId);
+    async uploadSingle(file, categoryId) {
+        const result = await this.uploadsService.uploadFile(file, categoryId);
+        return {
+            success: true,
+            data: {
+                url: result.secure_url,
+                publicId: result.public_id,
+                size: result.bytes,
+                format: result.format,
+                resourceType: result.resource_type,
+                width: result.width,
+                height: result.height,
+            }
+        };
     }
-    uploadMultiple(files, categoryId) {
-        return this.uploadsService.uploadMultiple(files, categoryId);
+    async uploadMultiple(files, categoryId) {
+        const results = await this.uploadsService.uploadMultiple(files, categoryId);
+        return {
+            success: true,
+            data: results.map(r => ({
+                url: r.secure_url,
+                publicId: r.public_id,
+                size: r.bytes,
+                format: r.format,
+                resourceType: r.resource_type,
+                width: r.width,
+                height: r.height,
+            }))
+        };
     }
     delete(publicId) {
         return this.uploadsService.deleteFile(decodeURIComponent(publicId));
@@ -39,24 +63,24 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Upload single file to Cloudinary' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
-    openapi.ApiResponse({ status: 201, type: Object }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Body)('categoryId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UploadsController.prototype, "uploadSingle", null);
 __decorate([
     (0, common_1.Post)('multiple'),
     (0, swagger_1.ApiOperation)({ summary: 'Upload multiple files to Cloudinary' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 20)),
-    openapi.ApiResponse({ status: 201, type: [Object] }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Body)('categoryId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array, String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UploadsController.prototype, "uploadMultiple", null);
 __decorate([
     (0, common_1.Delete)(':publicId'),
