@@ -17,12 +17,12 @@ async function bootstrap() {
     });
     const configService = app.get(config_1.ConfigService);
     const port = configService.get('PORT', 4000);
-    const frontendUrl = configService.get('FRONTEND_URL', 'http://localhost:3000');
+    const frontendUrl = configService.get('FRONTEND_URL', 'https://adl-kairouan.vercel.app');
     app.use((0, helmet_1.default)({
         crossOriginResourcePolicy: { policy: 'cross-origin' },
     }));
     app.enableCors({
-        origin: [frontendUrl, 'http://localhost:3000'],
+        origin: [frontendUrl, 'https://adl-kairouan.vercel.app'],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
