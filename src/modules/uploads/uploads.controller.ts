@@ -15,16 +15,40 @@ export class UploadsController {
   @ApiOperation({ summary: 'Upload single file to Cloudinary' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  uploadSingle(@UploadedFile() file: Express.Multer.File, @Body('categoryId') categoryId?: string) {
-    return this.uploadsService.uploadFile(file, categoryId);
+  async uploadSingle(@UploadedFile() file: Express.Multer.File, @Body('categoryId') categoryId?: string) {
+    const result = await this.uploadsService.uploadFile(file, categoryId);
+    return {
+      success: true,
+      data: {
+        url: result.secure_url,
+        publicId: result.public_id,
+        size: result.bytes,
+        format: result.format,
+        resourceType: result.resource_type,
+        width: result.width,
+        height: result.height,
+      }
+    };
   }
 
   @Post('multiple')
   @ApiOperation({ summary: 'Upload multiple files to Cloudinary' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('files', 20))
-  uploadMultiple(@UploadedFiles() files: Express.Multer.File[], @Body('categoryId') categoryId?: string) {
-    return this.uploadsService.uploadMultiple(files, categoryId);
+  async uploadMultiple(@UploadedFiles() files: Express.Multer.File[], @Body('categoryId') categoryId?: string) {
+    const results = await this.uploadsService.uploadMultiple(files, categoryId);
+    return {
+      success: true,
+      data: results.map(r => ({
+        url: r.secure_url,
+        publicId: r.public_id,
+        size: r.bytes,
+        format: r.format,
+        resourceType: r.resource_type,
+        width: r.width,
+        height: r.height,
+      }))
+    };
   }
 
   @Delete(':publicId')
