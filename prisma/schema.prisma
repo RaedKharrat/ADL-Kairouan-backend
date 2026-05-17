@@ -179,6 +179,12 @@ model Project {
   categoryId  String?
   category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  // Specifications (editable from backoffice)
+  phase          String?  // e.g. "Implémentation", "Planification", "Achevé"
+  mainObjective  String?  // e.g. "Innovation Sociale"
+  partners       String?  // e.g. "ADL & PNUD"
+  scope          String?  // e.g. "Gouvernementale", "Régionale"
+
   // SEO
   seoTitle       String?
   seoDescription String?

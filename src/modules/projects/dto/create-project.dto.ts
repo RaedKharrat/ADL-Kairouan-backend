@@ -81,4 +81,24 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   ogImage?: string;
+
+  @ApiPropertyOptional({ description: 'Phase actuelle du projet (ex: Implémentation, Planification)' })
+  @IsOptional()
+  @IsString()
+  phase?: string;
+
+  @ApiPropertyOptional({ description: 'Objectif principal du projet (ex: Innovation Sociale)' })
+  @IsOptional()
+  @IsString()
+  mainObjective?: string;
+
+  @ApiPropertyOptional({ description: 'Partenaires impliqués (ex: ADL & PNUD)' })
+  @IsOptional()
+  @IsString()
+  partners?: string;
+
+  @ApiPropertyOptional({ description: 'Portée du projet (ex: Gouvernementale, Régionale)' })
+  @IsOptional()
+  @IsString()
+  scope?: string;
 }
