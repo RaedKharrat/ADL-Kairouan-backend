@@ -1,5 +1,6 @@
 import { VideosService } from './videos.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { CreateVideoDto, UpdateVideoDto } from './dto/video.dto';
 export declare class VideosController {
     private readonly videosService;
     constructor(videosService: VideosService);
@@ -31,7 +32,7 @@ export declare class VideosController {
         thumbnail: string | null;
         duration: string | null;
     }[]>;
-    create(dto: any): import(".prisma/client").Prisma.Prisma__VideoClient<{
+    create(dto: CreateVideoDto): import(".prisma/client").Prisma.Prisma__VideoClient<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -59,7 +60,7 @@ export declare class VideosController {
         thumbnail: string | null;
         duration: string | null;
     }>>;
-    update(id: string, dto: any): Promise<{
+    update(id: string, dto: UpdateVideoDto): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;

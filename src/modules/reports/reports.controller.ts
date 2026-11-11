@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Query, Version } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -11,7 +11,7 @@ import { PaginationDto } from '../../common/dto/pagination.dto';
 @ApiTags('reports')
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(private readonly reportsService: ReportsService) { }
 
   @Public() @Get('public') findPublished(@Query() query: PaginationDto) { return this.reportsService.findPublished(query); }
   @Public() @Patch(':id/download') download(@Param('id') id: string) { return this.reportsService.incrementDownload(id); }

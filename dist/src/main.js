@@ -11,22 +11,43 @@ const winston_config_1 = require("./config/winston.config");
 const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
 const response_interceptor_1 = require("./common/interceptors/response.interceptor");
 const logging_interceptor_1 = require("./common/interceptors/logging.interceptor");
+const cookie_parser_middleware_1 = require("./common/middleware/cookie-parser.middleware");
+const express = require("express");
 async function bootstrap() {
     try {
         const app = await core_1.NestFactory.create(app_module_1.AppModule, {
             logger: nest_winston_1.WinstonModule.createLogger(winston_config_1.winstonConfig),
         });
         const configService = app.get(config_1.ConfigService);
+        const isProduction = configService.get('NODE_ENV') === 'production';
         const port = process.env.PORT || configService.get('PORT', 4000);
         const frontendUrl = configService.get('FRONTEND_URL', 'https://adl-kairouan.vercel.app');
+        app.enableShutdownHooks();
+        app.use(cookie_parser_middleware_1.cookieParserMiddleware);
+        app.use(express.json({ limit: '10mb' }));
+        app.use(express.urlencoded({ extended: true, limit: '10mb' }));
         app.use((0, helmet_1.default)({
             crossOriginResourcePolicy: { policy: 'cross-origin' },
+            dnsPrefetchControl: { allow: false },
+            frameguard: { action: 'sameorigin' },
+            hidePoweredBy: true,
+            hsts: isProduction
+                ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+                : false,
+            noSniff: true,
         }));
+        const allowedOrigins = [
+            frontendUrl,
+            'https://adl-kairouan.vercel.app',
+        ];
+        if (!isProduction) {
+            allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+        }
         app.enableCors({
-            origin: [frontendUrl, 'https://adl-kairouan.vercel.app'],
+            origin: allowedOrigins,
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
         });
         app.setGlobalPrefix('api');
         app.enableVersioning({

@@ -1,4 +1,5 @@
 import { FaqService } from './faq.service';
+import { CreateFaqDto, UpdateFaqDto } from './dto/faq.dto';
 export declare class FaqController {
     private readonly faqService;
     constructor(faqService: FaqService);
@@ -18,7 +19,7 @@ export declare class FaqController {
         question: string;
         answer: string;
     })[]>;
-    create(dto: any): import(".prisma/client").Prisma.Prisma__FAQClient<{
+    create(dto: CreateFaqDto): import(".prisma/client").Prisma.Prisma__FAQClient<{
         category: {
             id: string;
             name: string;
@@ -64,7 +65,7 @@ export declare class FaqController {
         question: string;
         answer: string;
     }[]>;
-    update(id: string, dto: any): Promise<{
+    update(id: string, dto: UpdateFaqDto): Promise<{
         category: {
             id: string;
             name: string;

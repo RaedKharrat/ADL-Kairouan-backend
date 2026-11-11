@@ -16,7 +16,7 @@ const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 class CreateProjectDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: true, type: () => String }, slug: { required: false, type: () => String }, excerpt: { required: false, type: () => String }, content: { required: false, type: () => String }, coverImage: { required: false, type: () => String }, gallery: { required: false, type: () => [String] }, pdfFiles: { required: false, type: () => [String] }, videoUrl: { required: false, type: () => String }, tags: { required: false, type: () => [String] }, featured: { required: false, type: () => Boolean }, status: { required: false, type: () => Object }, categoryId: { required: false, type: () => String }, seoTitle: { required: false, type: () => String }, seoDescription: { required: false, type: () => String }, seoKeywords: { required: false, type: () => [String] }, ogImage: { required: false, type: () => String } };
+        return { title: { required: true, type: () => String }, slug: { required: false, type: () => String }, excerpt: { required: false, type: () => String }, content: { required: false, type: () => String }, coverImage: { required: false, type: () => String }, gallery: { required: false, type: () => [String] }, pdfFiles: { required: false, type: () => [String] }, videoUrl: { required: false, type: () => String }, tags: { required: false, type: () => [String] }, featured: { required: false, type: () => Boolean }, status: { required: false, type: () => Object }, categoryId: { required: false, type: () => String }, seoTitle: { required: false, type: () => String }, seoDescription: { required: false, type: () => String }, seoKeywords: { required: false, type: () => [String] }, ogImage: { required: false, type: () => String }, phase: { required: false, type: () => String }, mainObjective: { required: false, type: () => String }, partners: { required: false, type: () => String }, scope: { required: false, type: () => String } };
     }
 }
 exports.CreateProjectDto = CreateProjectDto;
@@ -115,4 +115,28 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProjectDto.prototype, "ogImage", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Phase actuelle du projet (ex: Implémentation, Planification)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProjectDto.prototype, "phase", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Objectif principal du projet (ex: Innovation Sociale)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProjectDto.prototype, "mainObjective", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Partenaires impliqués (ex: ADL & PNUD)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProjectDto.prototype, "partners", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Portée du projet (ex: Gouvernementale, Régionale)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProjectDto.prototype, "scope", void 0);
 //# sourceMappingURL=create-project.dto.js.map

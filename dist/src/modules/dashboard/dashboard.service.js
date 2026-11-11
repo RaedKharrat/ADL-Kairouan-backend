@@ -12,38 +12,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DashboardService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const cache_service_1 = require("../../common/cache/cache.service");
 const client_1 = require("@prisma/client");
 let DashboardService = class DashboardService {
-    constructor(prisma) {
+    constructor(prisma, cache) {
         this.prisma = prisma;
+        this.cache = cache;
     }
     async getSummary() {
-        const [totalProjects, publishedProjects, totalBlogPosts, publishedBlogPosts, totalPartners, totalMediaItems, totalReports, totalFaqs, totalTestimonials, unreadMessages, totalMessages, totalSubscribers, activeSubscribers,] = await Promise.all([
-            this.prisma.project.count({ where: { deletedAt: null } }),
-            this.prisma.project.count({ where: { status: client_1.PublishStatus.PUBLISHED, deletedAt: null } }),
-            this.prisma.blogPost.count({ where: { deletedAt: null } }),
-            this.prisma.blogPost.count({ where: { status: client_1.PublishStatus.PUBLISHED, deletedAt: null } }),
-            this.prisma.partner.count({ where: { isActive: true } }),
-            this.prisma.mediaItem.count(),
-            this.prisma.report.count({ where: { published: true } }),
-            this.prisma.fAQ.count({ where: { isActive: true } }),
-            this.prisma.testimonial.count({ where: { isActive: true } }),
-            this.prisma.contactMessage.count({ where: { isRead: false, isArchived: false } }),
-            this.prisma.contactMessage.count({ where: { isArchived: false } }),
-            this.prisma.newsletterSubscriber.count(),
-            this.prisma.newsletterSubscriber.count({ where: { isActive: true } }),
-        ]);
-        return {
-            projects: { total: totalProjects, published: publishedProjects, draft: totalProjects - publishedProjects },
-            blog: { total: totalBlogPosts, published: publishedBlogPosts, draft: totalBlogPosts - publishedBlogPosts },
-            partners: totalPartners,
-            media: totalMediaItems,
-            reports: totalReports,
-            faqs: totalFaqs,
-            testimonials: totalTestimonials,
-            messages: { total: totalMessages, unread: unreadMessages },
-            newsletter: { total: totalSubscribers, active: activeSubscribers },
-        };
+        return this.cache.wrap('dashboard:summary', async () => {
+            const [totalProjects, publishedProjects, totalBlogPosts, publishedBlogPosts, totalPartners, totalMediaItems, totalReports, totalFaqs, totalTestimonials, unreadMessages, totalMessages, totalSubscribers, activeSubscribers,] = await Promise.all([
+                this.prisma.project.count({ where: { deletedAt: null } }),
+                this.prisma.project.count({ where: { status: client_1.PublishStatus.PUBLISHED, deletedAt: null } }),
+                this.prisma.blogPost.count({ where: { deletedAt: null } }),
+                this.prisma.blogPost.count({ where: { status: client_1.PublishStatus.PUBLISHED, deletedAt: null } }),
+                this.prisma.partner.count({ where: { isActive: true } }),
+                this.prisma.mediaItem.count(),
+                this.prisma.report.count({ where: { published: true } }),
+                this.prisma.fAQ.count({ where: { isActive: true } }),
+                this.prisma.testimonial.count({ where: { isActive: true } }),
+                this.prisma.contactMessage.count({ where: { isRead: false, isArchived: false } }),
+                this.prisma.contactMessage.count({ where: { isArchived: false } }),
+                this.prisma.newsletterSubscriber.count(),
+                this.prisma.newsletterSubscriber.count({ where: { isActive: true } }),
+            ]);
+            return {
+                projects: { total: totalProjects, published: publishedProjects, draft: totalProjects - publishedProjects },
+                blog: { total: totalBlogPosts, published: publishedBlogPosts, draft: totalBlogPosts - publishedBlogPosts },
+                partners: totalPartners,
+                media: totalMediaItems,
+                reports: totalReports,
+                faqs: totalFaqs,
+                testimonials: totalTestimonials,
+                messages: { total: totalMessages, unread: unreadMessages },
+                newsletter: { total: totalSubscribers, active: activeSubscribers },
+            };
+        }, 60);
     }
     async getRecentActivity(limit = 20) {
         return this.prisma.auditLog.findMany({
@@ -76,80 +80,85 @@ let DashboardService = class DashboardService {
         });
     }
     async getMonthlyStats() {
-        const months = [];
-        const now = new Date();
-        for (let i = 5; i >= 0; i--) {
-            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-            const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
-            const [projectCount, blogCount] = await Promise.all([
-                this.prisma.project.count({
-                    where: {
-                        createdAt: {
-                            gte: monthDate,
-                            lt: nextMonthDate,
+        return this.cache.wrap('dashboard:monthly-stats', async () => {
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+                const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
+                const [projectCount, blogCount] = await Promise.all([
+                    this.prisma.project.count({
+                        where: {
+                            createdAt: {
+                                gte: monthDate,
+                                lt: nextMonthDate,
+                            },
+                            deletedAt: null,
                         },
-                        deletedAt: null,
-                    },
-                }),
-                this.prisma.blogPost.count({
-                    where: {
-                        createdAt: {
-                            gte: monthDate,
-                            lt: nextMonthDate,
+                    }),
+                    this.prisma.blogPost.count({
+                        where: {
+                            createdAt: {
+                                gte: monthDate,
+                                lt: nextMonthDate,
+                            },
+                            deletedAt: null,
                         },
-                        deletedAt: null,
-                    },
-                }),
-            ]);
-            months.push({
-                name: label,
-                projets: projectCount,
-                articles: blogCount,
-            });
-        }
-        return months;
+                    }),
+                ]);
+                months.push({
+                    name: label,
+                    projets: projectCount,
+                    articles: blogCount,
+                });
+            }
+            return months;
+        }, 180);
     }
     async getEngagementStats() {
-        const months = [];
-        const now = new Date();
-        for (let i = 5; i >= 0; i--) {
-            const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-            const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
-            const [commentCount] = await Promise.all([
-                this.prisma.blogComment.count({
-                    where: {
-                        createdAt: {
-                            gte: monthDate,
-                            lt: nextMonthDate,
+        return this.cache.wrap('dashboard:engagement-stats', async () => {
+            const months = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const nextMonthDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+                const label = monthDate.toLocaleString('fr-FR', { month: 'short' });
+                const [commentCount] = await Promise.all([
+                    this.prisma.blogComment.count({
+                        where: {
+                            createdAt: {
+                                gte: monthDate,
+                                lt: nextMonthDate,
+                            },
+                            isPublic: true,
                         },
-                        isPublic: true,
-                    },
-                }),
-            ]);
-            const [blogViews, projectViews] = await Promise.all([
-                this.prisma.blogPost.aggregate({
-                    where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
-                    _sum: { views: true }
-                }),
-                this.prisma.project.aggregate({
-                    where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
-                    _sum: { views: true }
-                })
-            ]);
-            months.push({
-                name: label,
-                commentaires: commentCount,
-                vues: (blogViews._sum.views || 0) + (projectViews._sum.views || 0),
-            });
-        }
-        return months;
+                    }),
+                ]);
+                const [blogViews, projectViews] = await Promise.all([
+                    this.prisma.blogPost.aggregate({
+                        where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
+                        _sum: { views: true }
+                    }),
+                    this.prisma.project.aggregate({
+                        where: { createdAt: { gte: monthDate, lt: nextMonthDate } },
+                        _sum: { views: true }
+                    })
+                ]);
+                months.push({
+                    name: label,
+                    commentaires: commentCount,
+                    vues: (blogViews._sum.views || 0) + (projectViews._sum.views || 0),
+                });
+            }
+            return months;
+        }, 180);
     }
 };
 exports.DashboardService = DashboardService;
 exports.DashboardService = DashboardService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], DashboardService);
 //# sourceMappingURL=dashboard.service.js.map

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Version } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -6,6 +6,13 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { Role } from '@prisma/client';
+import {
+  CreateProjectCategoryDto,
+  UpdateProjectCategoryDto,
+  CreateBlogCategoryDto,
+  UpdateBlogCategoryDto,
+  CreateSimpleCategoryDto,
+} from './dto/create-category.dto';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -22,13 +29,13 @@ export class CategoriesController {
   // ─── Project categories ───────────────────────────────────────────────────
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Post('projects') createProject(@Body() body: { name: string; description?: string; order?: number }) {
+  @Post('projects') createProject(@Body() body: CreateProjectCategoryDto) {
     return this.categoriesService.createProjectCategory(body);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Patch('projects/:id') updateProject(@Param('id') id: string, @Body() body: any) {
+  @Patch('projects/:id') updateProject(@Param('id') id: string, @Body() body: UpdateProjectCategoryDto) {
     return this.categoriesService.updateProjectCategory(id, body);
   }
 
@@ -41,13 +48,13 @@ export class CategoriesController {
   // ─── Blog categories ──────────────────────────────────────────────────────
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Post('blog') createBlog(@Body() body: { name: string; description?: string }) {
+  @Post('blog') createBlog(@Body() body: CreateBlogCategoryDto) {
     return this.categoriesService.createBlogCategory(body);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Patch('blog/:id') updateBlog(@Param('id') id: string, @Body() body: any) {
+  @Patch('blog/:id') updateBlog(@Param('id') id: string, @Body() body: UpdateBlogCategoryDto) {
     return this.categoriesService.updateBlogCategory(id, body);
   }
 
@@ -60,7 +67,7 @@ export class CategoriesController {
   // ─── Media categories ─────────────────────────────────────────────────────
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Post('media') createMedia(@Body() body: { name: string }) {
+  @Post('media') createMedia(@Body() body: CreateSimpleCategoryDto) {
     return this.categoriesService.createMediaCategory(body);
   }
 
@@ -73,7 +80,7 @@ export class CategoriesController {
   // ─── Report categories ────────────────────────────────────────────────────
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Post('reports') createReport(@Body() body: { name: string }) {
+  @Post('reports') createReport(@Body() body: CreateSimpleCategoryDto) {
     return this.categoriesService.createReportCategory(body);
   }
 
@@ -86,7 +93,7 @@ export class CategoriesController {
   // ─── FAQ categories ───────────────────────────────────────────────────────
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
-  @Post('faq') createFaq(@Body() body: { name: string }) {
+  @Post('faq') createFaq(@Body() body: CreateSimpleCategoryDto) {
     return this.categoriesService.createFaqCategory(body);
   }
 

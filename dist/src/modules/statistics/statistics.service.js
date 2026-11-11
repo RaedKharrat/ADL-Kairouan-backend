@@ -12,35 +12,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatisticsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const cache_service_1 = require("../../common/cache/cache.service");
 let StatisticsService = class StatisticsService {
-    constructor(prisma) {
+    constructor(prisma, cache) {
         this.prisma = prisma;
+        this.cache = cache;
     }
     findAll() {
         return this.prisma.statistic.findMany({ orderBy: { order: 'asc' } });
     }
-    findActive() {
-        return this.prisma.statistic.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } });
+    async findActive() {
+        return this.cache.wrap('statistics:active', () => {
+            return this.prisma.statistic.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } });
+        }, 600);
     }
-    create(data) {
-        return this.prisma.statistic.create({ data });
+    async create(data) {
+        const stat = await this.prisma.statistic.create({ data });
+        await this.cache.del('statistics:active');
+        return stat;
     }
     async update(id, data) {
         const stat = await this.prisma.statistic.findUnique({ where: { id } });
         if (!stat)
             throw new common_1.NotFoundException('Statistic not found');
-        return this.prisma.statistic.update({ where: { id }, data });
+        const updated = await this.prisma.statistic.update({ where: { id }, data });
+        await this.cache.del('statistics:active');
+        return updated;
     }
     async remove(id) {
         const stat = await this.prisma.statistic.findUnique({ where: { id } });
         if (!stat)
             throw new common_1.NotFoundException('Statistic not found');
-        return this.prisma.statistic.delete({ where: { id } });
+        const deleted = await this.prisma.statistic.delete({ where: { id } });
+        await this.cache.del('statistics:active');
+        return deleted;
     }
 };
 exports.StatisticsService = StatisticsService;
 exports.StatisticsService = StatisticsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], StatisticsService);
 //# sourceMappingURL=statistics.service.js.map

@@ -15,6 +15,7 @@ const config_1 = require("@nestjs/config");
 const cloudinary_1 = require("cloudinary");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const path = require("path");
 let UploadsService = class UploadsService {
     constructor(config, prisma) {
         this.config = config;
@@ -39,10 +40,31 @@ let UploadsService = class UploadsService {
         };
         return `${base}/${subfolders[type]}`;
     }
+    sanitizeFilename(filename) {
+        const basename = path.basename(filename);
+        return basename.replace(/[^a-zA-Z0-9._-]/g, '_');
+    }
+    validateFile(file) {
+        if (!file || !file.buffer) {
+            throw new common_1.BadRequestException('Fichier invalide ou manquant');
+        }
+        if (file.mimetype === 'image/svg+xml' || file.originalname.toLowerCase().endsWith('.svg')) {
+            const content = file.buffer.toString('utf8').toLowerCase();
+            if (content.includes('<script') ||
+                content.includes('javascript:') ||
+                content.includes('onload=') ||
+                content.includes('onerror=') ||
+                content.includes('<foreignobject')) {
+                throw new common_1.BadRequestException('Le fichier SVG contient du code potentiellement dangereux.');
+            }
+        }
+    }
     async uploadFile(file, categoryId) {
+        this.validateFile(file);
         const mediaType = this.getMediaType(file.mimetype);
         const folder = this.getFolder(mediaType);
         const resourceType = mediaType === client_1.MediaType.VIDEO ? 'video' : mediaType === client_1.MediaType.DOCUMENT ? 'raw' : 'image';
+        const safeFilename = this.sanitizeFilename(file.originalname);
         return new Promise((resolve, reject) => {
             cloudinary_1.v2.uploader
                 .upload_stream({
@@ -62,7 +84,7 @@ let UploadsService = class UploadsService {
                     url: result.secure_url,
                     publicId: result.public_id,
                     type: mediaType,
-                    filename: file.originalname,
+                    filename: safeFilename,
                     mimeType: file.mimetype,
                     size: file.size,
                     width: result.width,
@@ -74,9 +96,15 @@ let UploadsService = class UploadsService {
         });
     }
     async uploadMultiple(files, categoryId) {
+        if (!files || files.length === 0) {
+            throw new common_1.BadRequestException('Aucun fichier fourni');
+        }
         return Promise.all(files.map((f) => this.uploadFile(f, categoryId)));
     }
     async deleteFile(publicId) {
+        if (!publicId || publicId.includes('..') || publicId.includes('/') === false && publicId.length < 3) {
+            throw new common_1.BadRequestException('Identifiant de fichier invalide');
+        }
         const result = await cloudinary_1.v2.uploader.destroy(publicId);
         await this.prisma.mediaItem.deleteMany({ where: { publicId } });
         return result;

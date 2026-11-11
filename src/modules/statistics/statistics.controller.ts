@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Version } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { StatisticsService } from './statistics.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { Role } from '@prisma/client';
+import { CreateStatisticDto, UpdateStatisticDto } from './dto/statistic.dto';
 
 @ApiTags('statistics')
 @Controller('statistics')
@@ -29,7 +30,8 @@ export class StatisticsController {
   @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
   @Post()
-  create(@Body() body: { label: string; value: string; icon?: string; suffix?: string; order?: number }) {
+  @ApiOperation({ summary: 'Create statistic' })
+  create(@Body() body: CreateStatisticDto) {
     return this.statisticsService.create(body);
   }
 
@@ -37,7 +39,8 @@ export class StatisticsController {
   @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  @ApiOperation({ summary: 'Update statistic' })
+  update(@Param('id') id: string, @Body() body: UpdateStatisticDto) {
     return this.statisticsService.update(id, body);
   }
 
@@ -45,6 +48,7 @@ export class StatisticsController {
   @ApiBearerAuth('JWT-auth')
   @Roles(Role.SUPER_ADMIN, Role.ADMIN)
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete statistic' })
   remove(@Param('id') id: string) {
     return this.statisticsService.remove(id);
   }

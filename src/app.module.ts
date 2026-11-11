@@ -12,6 +12,7 @@ import databaseConfig from './config/database.config';
 
 // Core Modules
 import { PrismaModule } from './prisma/prisma.module';
+import { AppCacheModule } from './common/cache/cache.module';
 
 // Feature Modules
 import { AuthModule } from './modules/auth/auth.module';
@@ -50,7 +51,7 @@ import { ChatbotModule } from './modules/chatbot/chatbot.module';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (_config: ConfigService) => ({
         throttlers: [
           {
             name: 'short',
@@ -73,6 +74,7 @@ import { ChatbotModule } from './modules/chatbot/chatbot.module';
 
     // Core
     PrismaModule,
+    AppCacheModule,
 
     // Feature Modules
     AuthModule,

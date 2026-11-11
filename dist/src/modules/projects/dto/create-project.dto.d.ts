@@ -16,4 +16,8 @@ export declare class CreateProjectDto {
     seoDescription?: string;
     seoKeywords?: string[];
     ogImage?: string;
+    phase?: string;
+    mainObjective?: string;
+    partners?: string;
+    scope?: string;
 }

@@ -1,17 +1,21 @@
-import { Controller, Post, Delete, UseInterceptors, UploadedFile, UploadedFiles, Param, Body, UseGuards, Version } from '@nestjs/common';
+import { Controller, Post, Delete, UseInterceptors, UploadedFile, UploadedFiles, Param, Body, UseGuards } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { UploadsService } from './uploads.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @ApiTags('uploads')
 @ApiBearerAuth('JWT-auth')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('uploads')
 export class UploadsController {
   constructor(private readonly uploadsService: UploadsService) {}
 
   @Post('single')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
   @ApiOperation({ summary: 'Upload single file to Cloudinary' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
@@ -32,6 +36,7 @@ export class UploadsController {
   }
 
   @Post('multiple')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN, Role.EDITOR)
   @ApiOperation({ summary: 'Upload multiple files to Cloudinary' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('files', 20))
@@ -52,7 +57,8 @@ export class UploadsController {
   }
 
   @Delete(':publicId')
-  @ApiOperation({ summary: 'Delete file from Cloudinary by publicId' })
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @ApiOperation({ summary: 'Delete file from Cloudinary by publicId (Admin only)' })
   delete(@Param('publicId') publicId: string) {
     return this.uploadsService.deleteFile(decodeURIComponent(publicId));
   }

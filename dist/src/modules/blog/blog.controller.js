@@ -20,12 +20,14 @@ const blog_service_1 = require("./blog.service");
 const create_blog_post_dto_1 = require("./dto/create-blog-post.dto");
 const update_blog_post_dto_1 = require("./dto/update-blog-post.dto");
 const blog_pagination_dto_1 = require("./dto/blog-pagination.dto");
+const create_comment_dto_1 = require("./dto/create-comment.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const client_1 = require("@prisma/client");
+const throttler_1 = require("@nestjs/throttler");
 let BlogController = class BlogController {
     constructor(blogService) {
         this.blogService = blogService;
@@ -86,6 +88,7 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)(':id/like'),
+    (0, throttler_1.Throttle)({ default: { limit: 15, ttl: 60000 } }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -95,11 +98,12 @@ __decorate([
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)(':id/comments'),
+    (0, throttler_1.Throttle)({ default: { limit: 3, ttl: 60000 } }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, create_comment_dto_1.CreateCommentDto]),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "addComment", null);
 __decorate([

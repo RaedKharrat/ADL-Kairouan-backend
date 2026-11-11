@@ -1,8 +1,10 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { SettingGroup } from '@prisma/client';
 export declare class SettingsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cache;
+    constructor(prisma: PrismaService, cache: CacheService);
     findAll(group?: SettingGroup): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
         updatedAt: Date;

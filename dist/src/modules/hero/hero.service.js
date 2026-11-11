@@ -12,38 +12,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HeroService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const cache_service_1 = require("../../common/cache/cache.service");
 let HeroService = class HeroService {
-    constructor(prisma) {
+    constructor(prisma, cache) {
         this.prisma = prisma;
+        this.cache = cache;
     }
     findAll() {
         return this.prisma.heroSlide.findMany({ orderBy: { order: 'asc' } });
     }
-    findActive() {
-        return this.prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } });
+    async findActive() {
+        return this.cache.wrap('hero:active', () => {
+            return this.prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } });
+        }, 600);
     }
     findOne(id) {
         return this.prisma.heroSlide.findUnique({ where: { id } });
     }
-    create(data) {
-        return this.prisma.heroSlide.create({ data });
+    async create(data) {
+        const slide = await this.prisma.heroSlide.create({ data });
+        await this.cache.del('hero:active');
+        return slide;
     }
     async update(id, data) {
         const slide = await this.prisma.heroSlide.findUnique({ where: { id } });
         if (!slide)
             throw new common_1.NotFoundException('Hero slide not found');
-        return this.prisma.heroSlide.update({ where: { id }, data });
+        const updated = await this.prisma.heroSlide.update({ where: { id }, data });
+        await this.cache.del('hero:active');
+        return updated;
     }
     async remove(id) {
         const slide = await this.prisma.heroSlide.findUnique({ where: { id } });
         if (!slide)
             throw new common_1.NotFoundException('Hero slide not found');
-        return this.prisma.heroSlide.delete({ where: { id } });
+        const deleted = await this.prisma.heroSlide.delete({ where: { id } });
+        await this.cache.del('hero:active');
+        return deleted;
     }
 };
 exports.HeroService = HeroService;
 exports.HeroService = HeroService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], HeroService);
 //# sourceMappingURL=hero.service.js.map

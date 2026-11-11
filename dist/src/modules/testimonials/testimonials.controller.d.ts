@@ -1,4 +1,5 @@
 import { TestimonialsService } from './testimonials.service';
+import { CreateTestimonialDto, UpdateTestimonialDto } from './dto/testimonial.dto';
 export declare class TestimonialsController {
     private readonly svc;
     constructor(svc: TestimonialsService);
@@ -30,7 +31,7 @@ export declare class TestimonialsController {
         organization: string | null;
         rating: number | null;
     }[]>;
-    create(dto: any): import(".prisma/client").Prisma.Prisma__TestimonialClient<{
+    create(dto: CreateTestimonialDto): import(".prisma/client").Prisma.Prisma__TestimonialClient<{
         id: string;
         name: string;
         avatar: string | null;
@@ -74,7 +75,7 @@ export declare class TestimonialsController {
         organization: string | null;
         rating: number | null;
     }[]>;
-    update(id: string, dto: any): Promise<{
+    update(id: string, dto: UpdateTestimonialDto): Promise<{
         id: string;
         name: string;
         avatar: string | null;

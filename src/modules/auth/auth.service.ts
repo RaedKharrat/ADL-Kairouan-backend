@@ -1,7 +1,6 @@
 import {
   Injectable,
   UnauthorizedException,
-  BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -27,15 +26,47 @@ export class AuthService {
     });
 
     if (!user) {
+      await this.prisma.auditLog.create({
+        data: {
+          action: 'LOGIN_FAILED',
+          entity: 'User',
+          entityId: dto.email,
+          ip,
+          userAgent,
+          metadata: { reason: 'User not found' },
+        },
+      }).catch(() => null);
       throw new UnauthorizedException('Invalid email or password');
     }
 
     if (!user.isActive) {
+      await this.prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'LOGIN_FAILED',
+          entity: 'User',
+          entityId: user.id,
+          ip,
+          userAgent,
+          metadata: { reason: 'Account deactivated' },
+        },
+      }).catch(() => null);
       throw new ForbiddenException('Account is deactivated. Contact administrator.');
     }
 
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
     if (!isPasswordValid) {
+      await this.prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'LOGIN_FAILED',
+          entity: 'User',
+          entityId: user.id,
+          ip,
+          userAgent,
+          metadata: { reason: 'Invalid password' },
+        },
+      }).catch(() => null);
       throw new UnauthorizedException('Invalid email or password');
     }
 

@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SettingsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const cache_service_1 = require("../../common/cache/cache.service");
 const client_1 = require("@prisma/client");
 let SettingsService = class SettingsService {
-    constructor(prisma) {
+    constructor(prisma, cache) {
         this.prisma = prisma;
+        this.cache = cache;
     }
     findAll(group) {
         return this.prisma.siteSetting.findMany({ where: group ? { group } : {}, orderBy: { group: 'asc' } });
@@ -24,28 +26,37 @@ let SettingsService = class SettingsService {
         return this.prisma.siteSetting.findUnique({ where: { key } });
     }
     async upsert(key, value, group, label) {
-        return this.prisma.siteSetting.upsert({
+        const result = await this.prisma.siteSetting.upsert({
             where: { key },
             update: { value },
             create: { key, value, group: group || client_1.SettingGroup.GENERAL, label },
         });
+        await this.cache.del('settings:public');
+        return result;
     }
     async upsertMany(settings) {
-        return Promise.all(settings.map((s) => this.upsert(s.key, s.value, s.group, s.label)));
+        const result = await Promise.all(settings.map((s) => this.upsert(s.key, s.value, s.group, s.label)));
+        await this.cache.del('settings:public');
+        return result;
     }
     async remove(key) {
-        return this.prisma.siteSetting.delete({ where: { key } });
+        const result = await this.prisma.siteSetting.delete({ where: { key } });
+        await this.cache.del('settings:public');
+        return result;
     }
     async getPublicSettings() {
-        const settings = await this.prisma.siteSetting.findMany({
-            where: { group: { in: [client_1.SettingGroup.GENERAL, client_1.SettingGroup.SOCIAL, client_1.SettingGroup.CONTACT] } },
-        });
-        return Object.fromEntries(settings.map((s) => [s.key, s.value ?? '']));
+        return this.cache.wrap('settings:public', async () => {
+            const settings = await this.prisma.siteSetting.findMany({
+                where: { group: { in: [client_1.SettingGroup.GENERAL, client_1.SettingGroup.SOCIAL, client_1.SettingGroup.CONTACT] } },
+            });
+            return Object.fromEntries(settings.map((s) => [s.key, s.value ?? '']));
+        }, 600);
     }
 };
 exports.SettingsService = SettingsService;
 exports.SettingsService = SettingsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], SettingsService);
 //# sourceMappingURL=settings.service.js.map

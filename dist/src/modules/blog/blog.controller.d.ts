@@ -2,6 +2,7 @@ import { BlogService } from './blog.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { BlogPaginationDto } from './dto/blog-pagination.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 export declare class BlogController {
     private readonly blogService;
     constructor(blogService: BlogService);
@@ -174,11 +175,7 @@ export declare class BlogController {
         id: string;
         likes: number;
     }>;
-    addComment(id: string, dto: {
-        name: string;
-        content: string;
-        email?: string;
-    }): Promise<{
+    addComment(id: string, dto: CreateCommentDto): Promise<{
         id: string;
         email: string | null;
         name: string;

@@ -1,8 +1,9 @@
 import { StatisticsService } from './statistics.service';
+import { CreateStatisticDto, UpdateStatisticDto } from './dto/statistic.dto';
 export declare class StatisticsController {
     private readonly statisticsService;
     constructor(statisticsService: StatisticsService);
-    getActive(): import(".prisma/client").Prisma.PrismaPromise<{
+    getActive(): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -24,13 +25,7 @@ export declare class StatisticsController {
         icon: string | null;
         suffix: string | null;
     }[]>;
-    create(body: {
-        label: string;
-        value: string;
-        icon?: string;
-        suffix?: string;
-        order?: number;
-    }): import(".prisma/client").Prisma.Prisma__StatisticClient<{
+    create(body: CreateStatisticDto): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -40,8 +35,8 @@ export declare class StatisticsController {
         order: number;
         icon: string | null;
         suffix: string | null;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(id: string, body: any): Promise<{
+    }>;
+    update(id: string, body: UpdateStatisticDto): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;

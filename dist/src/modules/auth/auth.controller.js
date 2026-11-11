@@ -30,10 +30,11 @@ let AuthController = class AuthController {
         const ip = req.ip;
         const userAgent = req.get('user-agent');
         const result = await this.authService.login(dto, ip, userAgent);
+        const isProd = process.env.NODE_ENV === 'production';
         res.cookie('refresh_token', result.refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: isProd,
+            sameSite: isProd ? 'strict' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/api/v1/auth',
         });
@@ -46,12 +47,13 @@ let AuthController = class AuthController {
         };
     }
     async refresh(req, res) {
-        const refreshToken = req.cookies?.refresh_token;
+        const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
         const tokens = await this.authService.refresh(refreshToken);
+        const isProd = process.env.NODE_ENV === 'production';
         res.cookie('refresh_token', tokens.refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: isProd,
+            sameSite: isProd ? 'strict' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/api/v1/auth',
         });

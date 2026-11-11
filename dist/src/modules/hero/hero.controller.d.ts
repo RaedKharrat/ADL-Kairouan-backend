@@ -1,8 +1,9 @@
 import { HeroService } from './hero.service';
+import { CreateHeroDto, UpdateHeroDto } from './dto/hero.dto';
 export declare class HeroController {
     private readonly heroService;
     constructor(heroService: HeroService);
-    getActive(): import(".prisma/client").Prisma.PrismaPromise<{
+    getActive(): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -26,14 +27,7 @@ export declare class HeroController {
         ctaText: string | null;
         ctaLink: string | null;
     }[]>;
-    create(body: {
-        title: string;
-        subtitle?: string;
-        ctaText?: string;
-        ctaLink?: string;
-        image: string;
-        order?: number;
-    }): import(".prisma/client").Prisma.Prisma__HeroSlideClient<{
+    create(body: CreateHeroDto): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -44,8 +38,8 @@ export declare class HeroController {
         subtitle: string | null;
         ctaText: string | null;
         ctaLink: string | null;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(id: string, body: any): Promise<{
+    }>;
+    update(id: string, body: UpdateHeroDto): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;

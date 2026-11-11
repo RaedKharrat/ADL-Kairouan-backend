@@ -1,4 +1,5 @@
 import { TagsService } from './tags.service';
+import { CreateTagDto, UpdateTagDto } from './dto/tag.dto';
 export declare class TagsController {
     private readonly tagsService;
     constructor(tagsService: TagsService);
@@ -24,18 +25,14 @@ export declare class TagsController {
         updatedAt: Date;
         slug: string;
     }) | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
-    create(body: {
-        name: string;
-    }): import(".prisma/client").Prisma.Prisma__BlogTagClient<{
+    create(body: CreateTagDto): import(".prisma/client").Prisma.Prisma__BlogTagClient<{
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(id: string, body: {
-        name: string;
-    }): Promise<{
+    update(id: string, body: UpdateTagDto): Promise<{
         id: string;
         name: string;
         createdAt: Date;

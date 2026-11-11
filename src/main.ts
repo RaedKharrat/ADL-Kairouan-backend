@@ -10,6 +10,8 @@ import { winstonConfig } from './config/winston.config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { cookieParserMiddleware } from './common/middleware/cookie-parser.middleware';
+import * as express from 'express';
 
 async function bootstrap() {
   try {
@@ -18,24 +20,50 @@ async function bootstrap() {
     });
 
     const configService = app.get(ConfigService);
+    const isProduction = configService.get<string>('NODE_ENV') === 'production';
     
     // On Render/Heroku, the port is provided by the environment variable PORT
     const port = process.env.PORT || configService.get<number>('PORT', 4000);
     const frontendUrl = configService.get<string>('FRONTEND_URL', 'https://adl-kairouan.vercel.app');
 
-    // Security
+    // Enable graceful shutdown hooks (SIGINT, SIGTERM)
+    app.enableShutdownHooks();
+
+    // Cookie Parser Middleware
+    app.use(cookieParserMiddleware);
+
+    // Limit JSON and URL-encoded body payload size
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // Security Headers via Helmet
     app.use(
       helmet({
         crossOriginResourcePolicy: { policy: 'cross-origin' },
+        dnsPrefetchControl: { allow: false },
+        frameguard: { action: 'sameorigin' },
+        hidePoweredBy: true,
+        hsts: isProduction
+          ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+          : false,
+        noSniff: true,
       }),
     );
 
-    // CORS
+    // CORS configuration
+    const allowedOrigins = [
+      frontendUrl,
+      'https://adl-kairouan.vercel.app',
+    ];
+    if (!isProduction) {
+      allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
+    }
+
     app.enableCors({
-      origin: [frontendUrl, 'https://adl-kairouan.vercel.app'],
+      origin: allowedOrigins,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     });
 
     // Global prefix

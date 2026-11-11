@@ -18,6 +18,8 @@ const common_1 = require("@nestjs/common");
 const chatbot_service_1 = require("./chatbot.service");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const swagger_1 = require("@nestjs/swagger");
+const chat_dto_1 = require("./dto/chat.dto");
+const throttler_1 = require("@nestjs/throttler");
 let ChatbotController = class ChatbotController {
     constructor(chatbotService) {
         this.chatbotService = chatbotService;
@@ -32,11 +34,14 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Version)('1'),
     (0, common_1.Post)('chat'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60000 } }),
     (0, swagger_1.ApiOperation)({ summary: 'Send a message to the AI chatbot' }),
-    openapi.ApiResponse({ status: 201 }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'AI response generated successfully' }),
+    openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [chat_dto_1.ChatMessageDto]),
     __metadata("design:returntype", Promise)
 ], ChatbotController.prototype, "chat", null);
 exports.ChatbotController = ChatbotController = __decorate([

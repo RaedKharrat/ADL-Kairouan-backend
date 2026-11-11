@@ -1,7 +1,9 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 export declare class HeroService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cache;
+    constructor(prisma: PrismaService, cache: CacheService);
     findAll(): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
         isActive: boolean;
@@ -14,7 +16,7 @@ export declare class HeroService {
         ctaText: string | null;
         ctaLink: string | null;
     }[]>;
-    findActive(): import(".prisma/client").Prisma.PrismaPromise<{
+    findActive(): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -45,7 +47,7 @@ export declare class HeroService {
         ctaLink?: string;
         image: string;
         order?: number;
-    }): import(".prisma/client").Prisma.Prisma__HeroSlideClient<{
+    }): Promise<{
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -56,7 +58,7 @@ export declare class HeroService {
         subtitle: string | null;
         ctaText: string | null;
         ctaLink: string | null;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+    }>;
     update(id: string, data: Partial<{
         title: string;
         subtitle: string;

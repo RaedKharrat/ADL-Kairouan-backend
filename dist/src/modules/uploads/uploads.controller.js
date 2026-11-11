@@ -19,6 +19,9 @@ const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const uploads_service_1 = require("./uploads.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const roles_guard_1 = require("../../common/guards/roles.guard");
+const roles_decorator_1 = require("../../common/decorators/roles.decorator");
+const client_1 = require("@prisma/client");
 let UploadsController = class UploadsController {
     constructor(uploadsService) {
         this.uploadsService = uploadsService;
@@ -60,6 +63,7 @@ let UploadsController = class UploadsController {
 exports.UploadsController = UploadsController;
 __decorate([
     (0, common_1.Post)('single'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.EDITOR),
     (0, swagger_1.ApiOperation)({ summary: 'Upload single file to Cloudinary' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
@@ -72,6 +76,7 @@ __decorate([
 ], UploadsController.prototype, "uploadSingle", null);
 __decorate([
     (0, common_1.Post)('multiple'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.EDITOR),
     (0, swagger_1.ApiOperation)({ summary: 'Upload multiple files to Cloudinary' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files', 20)),
@@ -84,7 +89,8 @@ __decorate([
 ], UploadsController.prototype, "uploadMultiple", null);
 __decorate([
     (0, common_1.Delete)(':publicId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Delete file from Cloudinary by publicId' }),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete file from Cloudinary by publicId (Admin only)' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('publicId')),
     __metadata("design:type", Function),
@@ -94,7 +100,7 @@ __decorate([
 exports.UploadsController = UploadsController = __decorate([
     (0, swagger_1.ApiTags)('uploads'),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('uploads'),
     __metadata("design:paramtypes", [uploads_service_1.UploadsService])
 ], UploadsController);

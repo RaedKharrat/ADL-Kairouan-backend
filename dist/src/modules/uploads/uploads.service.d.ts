@@ -7,6 +7,8 @@ export declare class UploadsService {
     constructor(config: ConfigService, prisma: PrismaService);
     private getMediaType;
     private getFolder;
+    private sanitizeFilename;
+    private validateFile;
     uploadFile(file: Express.Multer.File, categoryId?: string): Promise<UploadApiResponse>;
     uploadMultiple(files: Express.Multer.File[], categoryId?: string): Promise<UploadApiResponse[]>;
     deleteFile(publicId: string): Promise<any>;

@@ -20,7 +20,7 @@ let SearchService = class SearchService {
         if (!query || query.trim().length < 2)
             return { projects: [], blogPosts: [], reports: [] };
         const searchTerm = query.trim();
-        const ilike = (field) => ({ contains: searchTerm, mode: 'insensitive' });
+        const ilike = (_field) => ({ contains: searchTerm, mode: 'insensitive' });
         const [projects, blogPosts, reports] = await Promise.all([
             this.prisma.project.findMany({
                 where: {

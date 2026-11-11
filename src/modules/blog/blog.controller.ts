@@ -1,16 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Version } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { BlogService } from './blog.service';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { BlogPaginationDto } from './dto/blog-pagination.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('blog')
 @Controller('blog')
@@ -22,8 +23,16 @@ export class BlogController {
   @Public() @Get('slug/:slug') findBySlug(@Param('slug') slug: string) { return this.blogService.findBySlug(slug); }
   @Public() @Get(':id/related') getRelated(@Param('id') id: string, @Query('limit') limit?: number) { return this.blogService.getRelated(id, limit); }
 
-  @Public() @Post(':id/like') like(@Param('id') id: string) { return this.blogService.like(id); }
-  @Public() @Post(':id/comments') addComment(@Param('id') id: string, @Body() dto: { name: string; content: string; email?: string }) { return this.blogService.addComment(id, dto); }
+  @Public()
+  @Post(':id/like')
+  @Throttle({ default: { limit: 15, ttl: 60000 } })
+  like(@Param('id') id: string) { return this.blogService.like(id); }
+
+  @Public()
+  @Post(':id/comments')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  addComment(@Param('id') id: string, @Body() dto: CreateCommentDto) { return this.blogService.addComment(id, dto); }
+
   @Public() @Get(':id/comments') getComments(@Param('id') id: string) { return this.blogService.getComments(id); }
 
   @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')

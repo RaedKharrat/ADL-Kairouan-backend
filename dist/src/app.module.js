@@ -17,6 +17,7 @@ const auth_config_1 = require("./config/auth.config");
 const cloudinary_config_1 = require("./config/cloudinary.config");
 const database_config_1 = require("./config/database.config");
 const prisma_module_1 = require("./prisma/prisma.module");
+const cache_module_1 = require("./common/cache/cache.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
 const projects_module_1 = require("./modules/projects/projects.module");
@@ -53,7 +54,7 @@ exports.AppModule = AppModule = __decorate([
             throttler_1.ThrottlerModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
-                useFactory: (config) => ({
+                useFactory: (_config) => ({
                     throttlers: [
                         {
                             name: 'short',
@@ -74,6 +75,7 @@ exports.AppModule = AppModule = __decorate([
                 }),
             }),
             prisma_module_1.PrismaModule,
+            cache_module_1.AppCacheModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             projects_module_1.ProjectsModule,

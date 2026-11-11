@@ -21,6 +21,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let message = 'Internal server error';
     let errors: unknown = null;
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
@@ -32,15 +34,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
         errors = resp.errors || null;
       }
     } else if (exception instanceof Error) {
-      message = exception.message;
-      this.logger.error(`Unhandled exception: ${exception.message}`, exception.stack);
+      this.logger.error(`Unhandled exception on ${request.method} ${request.url}: ${exception.message}`, exception.stack);
+      message = isProduction ? 'Une erreur interne est survenue.' : exception.message;
+    } else {
+      this.logger.error(`Unknown exception on ${request.method} ${request.url}: ${String(exception)}`);
+      message = 'Une erreur interne est survenue.';
+    }
+
+    // Mask sensitive 500 error messages in production
+    if (isProduction && status >= 500) {
+      message = 'Une erreur interne est survenue.';
+      errors = null;
     }
 
     const errorResponse = {
       success: false,
       statusCode: status,
       message,
-      errors,
+      ...(errors ? { errors } : {}),
       timestamp: new Date().toISOString(),
       path: request.url,
     };

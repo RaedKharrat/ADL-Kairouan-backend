@@ -22,6 +22,7 @@ const roles_guard_1 = require("../../common/guards/roles.guard");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const client_1 = require("@prisma/client");
+const create_category_dto_1 = require("./dto/create-category.dto");
 let CategoriesController = class CategoriesController {
     constructor(categoriesService) {
         this.categoriesService = categoriesService;
@@ -117,7 +118,7 @@ __decorate([
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateProjectCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "createProject", null);
 __decorate([
@@ -129,7 +130,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, create_category_dto_1.UpdateProjectCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "updateProject", null);
 __decorate([
@@ -151,7 +152,7 @@ __decorate([
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateBlogCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "createBlog", null);
 __decorate([
@@ -163,7 +164,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, create_category_dto_1.UpdateBlogCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "updateBlog", null);
 __decorate([
@@ -185,7 +186,7 @@ __decorate([
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateSimpleCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "createMedia", null);
 __decorate([
@@ -207,7 +208,7 @@ __decorate([
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateSimpleCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "createReport", null);
 __decorate([
@@ -229,7 +230,7 @@ __decorate([
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateSimpleCategoryDto]),
     __metadata("design:returntype", void 0)
 ], CategoriesController.prototype, "createFaq", null);
 __decorate([
