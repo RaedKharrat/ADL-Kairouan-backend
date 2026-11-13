@@ -1,4 +1,5 @@
-import { ReportsService } from './reports.service';
+import { ReportsService, CreateReportDto } from './reports.service';
+import { ReorderDto } from '../../common/dto/reorder.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 export declare class ReportsController {
     private readonly reportsService;
@@ -16,6 +17,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -31,6 +33,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -41,7 +44,7 @@ export declare class ReportsController {
         published: boolean;
         downloads: number;
     }>;
-    create(dto: any): import(".prisma/client").Prisma.Prisma__ReportClient<{
+    create(dto: CreateReportDto): Promise<{
         category: {
             id: string;
             name: string;
@@ -54,6 +57,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -63,7 +67,7 @@ export declare class ReportsController {
         year: number | null;
         published: boolean;
         downloads: number;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+    }>;
     findAll(query: PaginationDto): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         category: {
             id: string;
@@ -77,6 +81,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -87,6 +92,10 @@ export declare class ReportsController {
         published: boolean;
         downloads: number;
     }>>;
+    reorder(dto: ReorderDto): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     findOne(id: string): Promise<{
         category: {
             id: string;
@@ -100,6 +109,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -110,7 +120,7 @@ export declare class ReportsController {
         published: boolean;
         downloads: number;
     }>;
-    update(id: string, dto: any): Promise<{
+    update(id: string, dto: Partial<CreateReportDto>): Promise<{
         category: {
             id: string;
             name: string;
@@ -123,6 +133,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -138,6 +149,7 @@ export declare class ReportsController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;

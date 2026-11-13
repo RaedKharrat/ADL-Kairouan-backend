@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray, IsEnum, ArrayMaxSize } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, IsEnum, ArrayMaxSize, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PublishStatus } from '@prisma/client';
 
@@ -6,6 +6,11 @@ export class CreateBlogPostDto {
   @ApiProperty() 
   @IsString() 
   title: string;
+
+  @ApiPropertyOptional({ description: "Ordre d'affichage (ranking)", default: 0 })
+  @IsOptional()
+  @IsNumber()
+  order?: number;
 
   @ApiPropertyOptional() 
   @IsOptional() 

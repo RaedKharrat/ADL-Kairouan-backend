@@ -1,11 +1,15 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { PublishStatus } from '@prisma/client';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { ReorderItemDto } from '../../common/dto/reorder.dto';
 export declare class ProjectsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cache;
+    constructor(prisma: PrismaService, cache: CacheService);
+    private invalidateCache;
     private generateSlug;
     create(dto: CreateProjectDto): Promise<{
         id: string;
@@ -13,6 +17,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -51,6 +56,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -88,6 +94,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -126,6 +133,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -164,6 +172,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -202,6 +211,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -224,12 +234,17 @@ export declare class ProjectsService {
         views: number;
         categoryId: string | null;
     }>;
+    reorder(items: ReorderItemDto[]): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     remove(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -258,6 +273,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -286,6 +302,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -314,6 +331,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -348,6 +366,7 @@ export declare class ProjectsService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;

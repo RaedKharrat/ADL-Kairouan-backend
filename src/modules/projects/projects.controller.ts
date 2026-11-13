@@ -9,6 +9,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { Role } from '@prisma/client';
 import { ProjectPaginationDto } from './dto/project-pagination.dto';
+import { ReorderDto } from '../../common/dto/reorder.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -53,6 +54,15 @@ export class ProjectsController {
   @ApiOperation({ summary: 'List all projects (admin)' })
   findAll(@Query() query: ProjectPaginationDto) {
     return this.projectsService.findAll(query);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Patch('reorder')
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @ApiOperation({ summary: 'Reorder projects ranking' })
+  reorder(@Body() dto: ReorderDto) {
+    return this.projectsService.reorder(dto.items);
   }
 
   @UseGuards(JwtAuthGuard)

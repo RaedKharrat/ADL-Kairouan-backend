@@ -2,6 +2,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectPaginationDto } from './dto/project-pagination.dto';
+import { ReorderDto } from '../../common/dto/reorder.dto';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
@@ -17,6 +18,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -51,6 +53,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -89,6 +92,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -117,6 +121,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -151,6 +156,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -173,6 +179,10 @@ export declare class ProjectsController {
         views: number;
         categoryId: string | null;
     }>>;
+    reorder(dto: ReorderDto): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     findOne(id: string): Promise<{
         category: {
             id: string;
@@ -189,6 +199,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -227,6 +238,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -255,6 +267,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -283,6 +296,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -311,6 +325,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -339,6 +354,7 @@ export declare class ProjectsController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;

@@ -1,14 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { PublishStatus } from '@prisma/client';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { PaginationDto, paginate } from '../../common/dto/pagination.dto';
+import { ReorderItemDto } from '../../common/dto/reorder.dto';
 import slugify from 'slugify';
 
 @Injectable()
 export class BlogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+  ) {}
+
+  private async invalidateCache() {
+    await this.cache.delByPrefix('blog:public');
+  }
 
   private generateSlug(title: string): string {
     return slugify(title, { lower: true, strict: true, locale: 'fr' });
@@ -25,9 +34,19 @@ export class BlogService {
     const readingTime = dto.content ? this.calculateReadingTime(dto.content) : 1;
     const { tagIds, ...rest } = dto;
 
-    return this.prisma.blogPost.create({
+    let order = dto.order;
+    if (order === undefined || order === null) {
+      const highest = await this.prisma.blogPost.findFirst({
+        orderBy: { order: 'desc' },
+        select: { order: true },
+      });
+      order = (highest?.order ?? -1) + 1;
+    }
+
+    const post = await this.prisma.blogPost.create({
       data: {
         ...rest,
+        order,
         slug,
         readingTime,
         authorId,
@@ -35,10 +54,13 @@ export class BlogService {
       },
       include: { category: true, tags: true, author: { select: { id: true, name: true, avatar: true } } },
     });
+
+    await this.invalidateCache();
+    return post;
   }
 
   async findAll(query: PaginationDto & { status?: PublishStatus; categoryId?: string; featured?: boolean; tagId?: string }) {
-    const { page = 1, limit = 10, search, status, categoryId, featured, tagId, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+    const { page = 1, limit = 10, search, status, categoryId, featured, tagId, sortBy = 'order', sortOrder = 'asc' } = query;
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
@@ -55,6 +77,11 @@ export class BlogService {
       }),
     };
 
+    const orderBy =
+      sortBy === 'order'
+        ? [{ order: sortOrder }, { createdAt: 'desc' as const }]
+        : [{ [sortBy]: sortOrder }, { order: 'asc' as const }];
+
     const [items, total] = await Promise.all([
       this.prisma.blogPost.findMany({
         where,
@@ -65,10 +92,10 @@ export class BlogService {
           tags: { select: { id: true, name: true, slug: true } },
           author: { select: { id: true, name: true, avatar: true } },
           _count: {
-            select: { comments: { where: { isPublic: true } } }
-          }
+            select: { comments: { where: { isPublic: true } } },
+          },
         },
-        orderBy: { [sortBy]: sortOrder },
+        orderBy,
       }),
       this.prisma.blogPost.count({ where }),
     ]);
@@ -77,7 +104,48 @@ export class BlogService {
   }
 
   async findPublished(query: PaginationDto & { categoryId?: string; tagId?: string }) {
-    return this.findAll({ ...query, status: PublishStatus.PUBLISHED });
+    const cacheKey = `blog:public:${JSON.stringify(query)}`;
+    return this.cache.wrap(
+      cacheKey,
+      async () => {
+        const { page = 1, limit = 10, search, categoryId, tagId } = query;
+        const skip = (page - 1) * limit;
+
+        const where: Record<string, unknown> = {
+          deletedAt: null,
+          status: PublishStatus.PUBLISHED,
+          ...(categoryId && { categoryId }),
+          ...(tagId && { tags: { some: { id: tagId } } }),
+          ...(search && {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { excerpt: { contains: search, mode: 'insensitive' } },
+            ],
+          }),
+        };
+
+        const [items, total] = await Promise.all([
+          this.prisma.blogPost.findMany({
+            where,
+            skip,
+            take: limit,
+            include: {
+              category: { select: { id: true, name: true, slug: true } },
+              tags: { select: { id: true, name: true, slug: true } },
+              author: { select: { id: true, name: true, avatar: true } },
+              _count: {
+                select: { comments: { where: { isPublic: true } } },
+              },
+            },
+            orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
+          }),
+          this.prisma.blogPost.count({ where }),
+        ]);
+
+        return paginate(items, total, page, limit);
+      },
+      300, // 5 min cache
+    );
   }
 
   async findBySlug(slug: string) {
@@ -113,7 +181,7 @@ export class BlogService {
 
     const { tagIds, ...rest } = data as { tagIds?: string[] } & Record<string, unknown>;
 
-    return this.prisma.blogPost.update({
+    const updated = await this.prisma.blogPost.update({
       where: { id },
       data: {
         ...rest,
@@ -121,40 +189,68 @@ export class BlogService {
       },
       include: { category: true, tags: true, author: { select: { id: true, name: true, avatar: true } } },
     });
+
+    await this.invalidateCache();
+    return updated;
+  }
+
+  async reorder(items: ReorderItemDto[]) {
+    await this.prisma.$transaction(
+      items.map((item) =>
+        this.prisma.blogPost.update({
+          where: { id: item.id },
+          data: { order: item.order },
+        }),
+      ),
+    );
+    await this.invalidateCache();
+    return { success: true, count: items.length };
   }
 
   async remove(id: string) {
     const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
     if (!post) throw new NotFoundException('Blog post not found');
-    return this.prisma.blogPost.update({ where: { id }, data: { deletedAt: new Date() } });
+    const removed = await this.prisma.blogPost.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.invalidateCache();
+    return removed;
   }
 
   async togglePublish(id: string) {
     const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
     if (!post) throw new NotFoundException('Blog post not found');
     const newStatus = post.status === PublishStatus.PUBLISHED ? PublishStatus.DRAFT : PublishStatus.PUBLISHED;
-    return this.prisma.blogPost.update({
+    const updated = await this.prisma.blogPost.update({
       where: { id },
       data: { status: newStatus, publishedAt: newStatus === PublishStatus.PUBLISHED ? new Date() : null },
     });
+    await this.invalidateCache();
+    return updated;
   }
 
   async toggleFeatured(id: string) {
     const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
     if (!post) throw new NotFoundException('Blog post not found');
-    return this.prisma.blogPost.update({ where: { id }, data: { featured: !post.featured } });
+    const updated = await this.prisma.blogPost.update({ where: { id }, data: { featured: !post.featured } });
+    await this.invalidateCache();
+    return updated;
   }
 
   async getFeatured(limit = 6) {
-    return this.prisma.blogPost.findMany({
-      where: { featured: true, status: PublishStatus.PUBLISHED, deletedAt: null },
-      take: limit,
-      include: {
-        category: { select: { id: true, name: true, slug: true } },
-        author: { select: { id: true, name: true, avatar: true } },
+    return this.cache.wrap(
+      `blog:public:featured:${limit}`,
+      async () => {
+        return this.prisma.blogPost.findMany({
+          where: { featured: true, status: PublishStatus.PUBLISHED, deletedAt: null },
+          take: limit,
+          include: {
+            category: { select: { id: true, name: true, slug: true } },
+            author: { select: { id: true, name: true, avatar: true } },
+          },
+          orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }],
+        });
       },
-      orderBy: { publishedAt: 'desc' },
-    });
+      300,
+    );
   }
 
   async getRelated(id: string, limit = 4) {
@@ -173,7 +269,7 @@ export class BlogService {
       },
       take: limit,
       include: { category: { select: { id: true, name: true, slug: true } } },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }],
     });
   }
 
@@ -183,7 +279,7 @@ export class BlogService {
     return this.prisma.blogPost.update({
       where: { id },
       data: { likes: { increment: 1 } },
-      select: { id: true, likes: true }
+      select: { id: true, likes: true },
     });
   }
 
@@ -194,15 +290,15 @@ export class BlogService {
         content: dto.content,
         email: dto.email,
         blogPostId: id,
-        isPublic: true, // Default to public for now
-      }
+        isPublic: true,
+      },
     });
   }
 
   async getComments(postId: string) {
     return this.prisma.blogComment.findMany({
       where: { blogPostId: postId, isPublic: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

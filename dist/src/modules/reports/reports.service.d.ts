@@ -1,6 +1,8 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-declare class CreateReportDto {
+import { ReorderItemDto } from '../../common/dto/reorder.dto';
+export declare class CreateReportDto {
     title: string;
     description?: string;
     fileUrl: string;
@@ -10,11 +12,14 @@ declare class CreateReportDto {
     published?: boolean;
     featured?: boolean;
     categoryId?: string;
+    order?: number;
 }
 export declare class ReportsService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
-    create(dto: CreateReportDto): import(".prisma/client").Prisma.Prisma__ReportClient<{
+    private readonly cache;
+    constructor(prisma: PrismaService, cache: CacheService);
+    private invalidateCache;
+    create(dto: CreateReportDto): Promise<{
         category: {
             id: string;
             name: string;
@@ -27,6 +32,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -36,7 +42,7 @@ export declare class ReportsService {
         year: number | null;
         published: boolean;
         downloads: number;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+    }>;
     findAll(query: PaginationDto & {
         year?: number;
         published?: boolean;
@@ -54,6 +60,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -66,6 +73,7 @@ export declare class ReportsService {
     }>>;
     findPublished(query: PaginationDto & {
         year?: number;
+        categoryId?: string;
     }): Promise<import("../../common/dto/pagination.dto").PaginatedResult<{
         category: {
             id: string;
@@ -79,6 +87,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -102,6 +111,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -125,6 +135,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -135,11 +146,16 @@ export declare class ReportsService {
         published: boolean;
         downloads: number;
     }>;
+    reorder(items: ReorderItemDto[]): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     remove(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -155,6 +171,7 @@ export declare class ReportsService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        order: number;
         title: string;
         featured: boolean;
         categoryId: string | null;
@@ -166,4 +183,3 @@ export declare class ReportsService {
         downloads: number;
     }>;
 }
-export {};

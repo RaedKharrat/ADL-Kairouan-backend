@@ -22,6 +22,7 @@ const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
 const projects_module_1 = require("./modules/projects/projects.module");
 const partners_module_1 = require("./modules/partners/partners.module");
+const team_module_1 = require("./modules/team/team.module");
 const blog_module_1 = require("./modules/blog/blog.module");
 const media_module_1 = require("./modules/media/media.module");
 const videos_module_1 = require("./modules/videos/videos.module");
@@ -80,6 +81,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             projects_module_1.ProjectsModule,
             partners_module_1.PartnersModule,
+            team_module_1.TeamModule,
             blog_module_1.BlogModule,
             media_module_1.MediaModule,
             videos_module_1.VideosModule,

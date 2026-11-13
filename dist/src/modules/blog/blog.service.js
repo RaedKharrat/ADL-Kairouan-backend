@@ -12,12 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const cache_service_1 = require("../../common/cache/cache.service");
 const client_1 = require("@prisma/client");
 const pagination_dto_1 = require("../../common/dto/pagination.dto");
 const slugify_1 = require("slugify");
 let BlogService = class BlogService {
-    constructor(prisma) {
+    constructor(prisma, cache) {
         this.prisma = prisma;
+        this.cache = cache;
+    }
+    async invalidateCache() {
+        await this.cache.delByPrefix('blog:public');
     }
     generateSlug(title) {
         return (0, slugify_1.default)(title, { lower: true, strict: true, locale: 'fr' });
@@ -31,9 +36,18 @@ let BlogService = class BlogService {
         const slug = dto.slug || this.generateSlug(dto.title);
         const readingTime = dto.content ? this.calculateReadingTime(dto.content) : 1;
         const { tagIds, ...rest } = dto;
-        return this.prisma.blogPost.create({
+        let order = dto.order;
+        if (order === undefined || order === null) {
+            const highest = await this.prisma.blogPost.findFirst({
+                orderBy: { order: 'desc' },
+                select: { order: true },
+            });
+            order = (highest?.order ?? -1) + 1;
+        }
+        const post = await this.prisma.blogPost.create({
             data: {
                 ...rest,
+                order,
                 slug,
                 readingTime,
                 authorId,
@@ -41,9 +55,11 @@ let BlogService = class BlogService {
             },
             include: { category: true, tags: true, author: { select: { id: true, name: true, avatar: true } } },
         });
+        await this.invalidateCache();
+        return post;
     }
     async findAll(query) {
-        const { page = 1, limit = 10, search, status, categoryId, featured, tagId, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+        const { page = 1, limit = 10, search, status, categoryId, featured, tagId, sortBy = 'order', sortOrder = 'asc' } = query;
         const skip = (page - 1) * limit;
         const where = {
             deletedAt: null,
@@ -58,6 +74,9 @@ let BlogService = class BlogService {
                 ],
             }),
         };
+        const orderBy = sortBy === 'order'
+            ? [{ order: sortOrder }, { createdAt: 'desc' }]
+            : [{ [sortBy]: sortOrder }, { order: 'asc' }];
         const [items, total] = await Promise.all([
             this.prisma.blogPost.findMany({
                 where,
@@ -68,17 +87,51 @@ let BlogService = class BlogService {
                     tags: { select: { id: true, name: true, slug: true } },
                     author: { select: { id: true, name: true, avatar: true } },
                     _count: {
-                        select: { comments: { where: { isPublic: true } } }
-                    }
+                        select: { comments: { where: { isPublic: true } } },
+                    },
                 },
-                orderBy: { [sortBy]: sortOrder },
+                orderBy,
             }),
             this.prisma.blogPost.count({ where }),
         ]);
         return (0, pagination_dto_1.paginate)(items, total, page, limit);
     }
     async findPublished(query) {
-        return this.findAll({ ...query, status: client_1.PublishStatus.PUBLISHED });
+        const cacheKey = `blog:public:${JSON.stringify(query)}`;
+        return this.cache.wrap(cacheKey, async () => {
+            const { page = 1, limit = 10, search, categoryId, tagId } = query;
+            const skip = (page - 1) * limit;
+            const where = {
+                deletedAt: null,
+                status: client_1.PublishStatus.PUBLISHED,
+                ...(categoryId && { categoryId }),
+                ...(tagId && { tags: { some: { id: tagId } } }),
+                ...(search && {
+                    OR: [
+                        { title: { contains: search, mode: 'insensitive' } },
+                        { excerpt: { contains: search, mode: 'insensitive' } },
+                    ],
+                }),
+            };
+            const [items, total] = await Promise.all([
+                this.prisma.blogPost.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    include: {
+                        category: { select: { id: true, name: true, slug: true } },
+                        tags: { select: { id: true, name: true, slug: true } },
+                        author: { select: { id: true, name: true, avatar: true } },
+                        _count: {
+                            select: { comments: { where: { isPublic: true } } },
+                        },
+                    },
+                    orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
+                }),
+                this.prisma.blogPost.count({ where }),
+            ]);
+            return (0, pagination_dto_1.paginate)(items, total, page, limit);
+        }, 300);
     }
     async findBySlug(slug) {
         const post = await this.prisma.blogPost.findUnique({
@@ -113,7 +166,7 @@ let BlogService = class BlogService {
         if (dto.content)
             data.readingTime = this.calculateReadingTime(dto.content);
         const { tagIds, ...rest } = data;
-        return this.prisma.blogPost.update({
+        const updated = await this.prisma.blogPost.update({
             where: { id },
             data: {
                 ...rest,
@@ -121,39 +174,57 @@ let BlogService = class BlogService {
             },
             include: { category: true, tags: true, author: { select: { id: true, name: true, avatar: true } } },
         });
+        await this.invalidateCache();
+        return updated;
+    }
+    async reorder(items) {
+        await this.prisma.$transaction(items.map((item) => this.prisma.blogPost.update({
+            where: { id: item.id },
+            data: { order: item.order },
+        })));
+        await this.invalidateCache();
+        return { success: true, count: items.length };
     }
     async remove(id) {
         const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
         if (!post)
             throw new common_1.NotFoundException('Blog post not found');
-        return this.prisma.blogPost.update({ where: { id }, data: { deletedAt: new Date() } });
+        const removed = await this.prisma.blogPost.update({ where: { id }, data: { deletedAt: new Date() } });
+        await this.invalidateCache();
+        return removed;
     }
     async togglePublish(id) {
         const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
         if (!post)
             throw new common_1.NotFoundException('Blog post not found');
         const newStatus = post.status === client_1.PublishStatus.PUBLISHED ? client_1.PublishStatus.DRAFT : client_1.PublishStatus.PUBLISHED;
-        return this.prisma.blogPost.update({
+        const updated = await this.prisma.blogPost.update({
             where: { id },
             data: { status: newStatus, publishedAt: newStatus === client_1.PublishStatus.PUBLISHED ? new Date() : null },
         });
+        await this.invalidateCache();
+        return updated;
     }
     async toggleFeatured(id) {
         const post = await this.prisma.blogPost.findUnique({ where: { id, deletedAt: null } });
         if (!post)
             throw new common_1.NotFoundException('Blog post not found');
-        return this.prisma.blogPost.update({ where: { id }, data: { featured: !post.featured } });
+        const updated = await this.prisma.blogPost.update({ where: { id }, data: { featured: !post.featured } });
+        await this.invalidateCache();
+        return updated;
     }
     async getFeatured(limit = 6) {
-        return this.prisma.blogPost.findMany({
-            where: { featured: true, status: client_1.PublishStatus.PUBLISHED, deletedAt: null },
-            take: limit,
-            include: {
-                category: { select: { id: true, name: true, slug: true } },
-                author: { select: { id: true, name: true, avatar: true } },
-            },
-            orderBy: { publishedAt: 'desc' },
-        });
+        return this.cache.wrap(`blog:public:featured:${limit}`, async () => {
+            return this.prisma.blogPost.findMany({
+                where: { featured: true, status: client_1.PublishStatus.PUBLISHED, deletedAt: null },
+                take: limit,
+                include: {
+                    category: { select: { id: true, name: true, slug: true } },
+                    author: { select: { id: true, name: true, avatar: true } },
+                },
+                orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }],
+            });
+        }, 300);
     }
     async getRelated(id, limit = 4) {
         const post = await this.prisma.blogPost.findUnique({ where: { id }, include: { tags: true } });
@@ -172,14 +243,14 @@ let BlogService = class BlogService {
             },
             take: limit,
             include: { category: { select: { id: true, name: true, slug: true } } },
-            orderBy: { publishedAt: 'desc' },
+            orderBy: [{ order: 'asc' }, { publishedAt: 'desc' }],
         });
     }
     async like(id) {
         return this.prisma.blogPost.update({
             where: { id },
             data: { likes: { increment: 1 } },
-            select: { id: true, likes: true }
+            select: { id: true, likes: true },
         });
     }
     async addComment(id, dto) {
@@ -190,19 +261,20 @@ let BlogService = class BlogService {
                 email: dto.email,
                 blogPostId: id,
                 isPublic: true,
-            }
+            },
         });
     }
     async getComments(postId) {
         return this.prisma.blogComment.findMany({
             where: { blogPostId: postId, isPublic: true },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
 };
 exports.BlogService = BlogService;
 exports.BlogService = BlogService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        cache_service_1.CacheService])
 ], BlogService);
 //# sourceMappingURL=blog.service.js.map

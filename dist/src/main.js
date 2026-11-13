@@ -75,6 +75,7 @@ async function bootstrap() {
                 .addTag('media', 'Media library')
                 .addTag('reports', 'Reports & transparency')
                 .addTag('partners', 'Partners')
+                .addTag('team', 'Team & Executive Board')
                 .addTag('faq', 'FAQ management')
                 .addTag('testimonials', 'Testimonials')
                 .addTag('contact', 'Contact messages')

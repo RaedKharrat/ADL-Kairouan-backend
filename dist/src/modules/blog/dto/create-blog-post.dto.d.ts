@@ -1,6 +1,7 @@
 import { PublishStatus } from '@prisma/client';
 export declare class CreateBlogPostDto {
     title: string;
+    order?: number;
     slug?: string;
     excerpt?: string;
     content?: string;

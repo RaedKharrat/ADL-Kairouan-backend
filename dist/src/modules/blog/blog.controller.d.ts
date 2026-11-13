@@ -3,6 +3,7 @@ import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { BlogPaginationDto } from './dto/blog-pagination.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { ReorderDto } from '../../common/dto/reorder.dto';
 export declare class BlogController {
     private readonly blogService;
     constructor(blogService: BlogService);
@@ -31,6 +32,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -69,6 +71,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -117,6 +120,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -150,6 +154,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -224,6 +229,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -270,6 +276,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -291,6 +298,10 @@ export declare class BlogController {
         likes: number;
         authorId: string | null;
     }>>;
+    reorder(dto: ReorderDto): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     findOne(id: string): Promise<{
         tags: {
             id: string;
@@ -318,6 +329,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -366,6 +378,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -393,6 +406,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -420,6 +434,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -447,6 +462,7 @@ export declare class BlogController {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;

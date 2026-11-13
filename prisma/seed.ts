@@ -287,6 +287,46 @@ async function main() {
     ],
   });
 
+  // ── Executive Team ────────────────────────────────────────────────────────
+  await prisma.teamMember.deleteMany();
+  await prisma.teamMember.createMany({
+    data: [
+      {
+        name: 'Dr. Karim Ben Salem',
+        role: 'Directeur Général',
+        department: 'Pôle Stratégique',
+        bio: 'Expert en développement territorial et gouvernance locale avec plus de 15 ans d\'expérience dans la gestion de programmes de développement.',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
+        email: 'k.bensalem@adl-kairouan.org',
+        linkedin: 'https://linkedin.com',
+        order: 0,
+        isActive: true,
+      },
+      {
+        name: 'Sarra Mansour',
+        role: 'Directrice des Opérations',
+        department: 'Pôle Projets & Partenariats',
+        bio: 'Spécialiste en ingénierie de projets sociaux et coordination des partenariats internationaux.',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop',
+        email: 's.mansour@adl-kairouan.org',
+        linkedin: 'https://linkedin.com',
+        order: 1,
+        isActive: true,
+      },
+      {
+        name: 'Hichem Riahi',
+        role: 'Directeur Technique',
+        department: 'Pôle Innovation & Transition',
+        bio: 'Ingénieur en planification urbaine durable et transition numérique des territoires.',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
+        email: 'h.riahi@adl-kairouan.org',
+        linkedin: 'https://linkedin.com',
+        order: 2,
+        isActive: true,
+      },
+    ],
+  });
+
   console.log('✅ Database populated with rich content successfully!');
 }
 

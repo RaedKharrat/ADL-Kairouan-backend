@@ -1,11 +1,15 @@
 import { PrismaService } from '../../prisma/prisma.service';
+import { CacheService } from '../../common/cache/cache.service';
 import { PublishStatus } from '@prisma/client';
 import { CreateBlogPostDto } from './dto/create-blog-post.dto';
 import { UpdateBlogPostDto } from './dto/update-blog-post.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { ReorderItemDto } from '../../common/dto/reorder.dto';
 export declare class BlogService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly cache;
+    constructor(prisma: PrismaService, cache: CacheService);
+    private invalidateCache;
     private generateSlug;
     private calculateReadingTime;
     create(dto: CreateBlogPostDto, authorId: string): Promise<{
@@ -35,6 +39,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -86,6 +91,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -135,6 +141,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -183,6 +190,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -231,6 +239,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -279,6 +288,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -300,12 +310,17 @@ export declare class BlogService {
         likes: number;
         authorId: string | null;
     }>;
+    reorder(items: ReorderItemDto[]): Promise<{
+        success: boolean;
+        count: number;
+    }>;
     remove(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -333,6 +348,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -360,6 +376,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -398,6 +415,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;
@@ -431,6 +449,7 @@ export declare class BlogService {
         updatedAt: Date;
         deletedAt: Date | null;
         slug: string;
+        order: number;
         title: string;
         excerpt: string | null;
         content: string | null;

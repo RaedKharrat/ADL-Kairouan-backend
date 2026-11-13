@@ -25,6 +25,7 @@ const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const client_1 = require("@prisma/client");
 const project_pagination_dto_1 = require("./dto/project-pagination.dto");
+const reorder_dto_1 = require("../../common/dto/reorder.dto");
 let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
@@ -43,6 +44,9 @@ let ProjectsController = class ProjectsController {
     }
     findAll(query) {
         return this.projectsService.findAll(query);
+    }
+    reorder(dto) {
+        return this.projectsService.reorder(dto.items);
     }
     findOne(id) {
         return this.projectsService.findOne(id);
@@ -117,6 +121,18 @@ __decorate([
     __metadata("design:paramtypes", [project_pagination_dto_1.ProjectPaginationDto]),
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.Patch)('reorder'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Reorder projects ranking' }),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [reorder_dto_1.ReorderDto]),
+    __metadata("design:returntype", void 0)
+], ProjectsController.prototype, "reorder", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

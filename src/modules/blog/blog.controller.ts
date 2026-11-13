@@ -12,6 +12,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 import { Throttle } from '@nestjs/throttler';
+import { ReorderDto } from '../../common/dto/reorder.dto';
 
 @ApiTags('blog')
 @Controller('blog')
@@ -41,6 +42,10 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard) @ApiBearerAuth('JWT-auth')
   @Get() findAll(@Query() query: BlogPaginationDto) { return this.blogService.findAll(query); }
+
+  @UseGuards(JwtAuthGuard, RolesGuard) @ApiBearerAuth('JWT-auth')
+  @Patch('reorder') @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  reorder(@Body() dto: ReorderDto) { return this.blogService.reorder(dto.items); }
 
   @UseGuards(JwtAuthGuard) @ApiBearerAuth('JWT-auth')
   @Get(':id') findOne(@Param('id') id: string) { return this.blogService.findOne(id); }

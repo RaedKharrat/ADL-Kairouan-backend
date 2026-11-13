@@ -28,6 +28,7 @@ const public_decorator_1 = require("../../common/decorators/public.decorator");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const client_1 = require("@prisma/client");
 const throttler_1 = require("@nestjs/throttler");
+const reorder_dto_1 = require("../../common/dto/reorder.dto");
 let BlogController = class BlogController {
     constructor(blogService) {
         this.blogService = blogService;
@@ -41,6 +42,7 @@ let BlogController = class BlogController {
     getComments(id) { return this.blogService.getComments(id); }
     create(dto, authorId) { return this.blogService.create(dto, authorId); }
     findAll(query) { return this.blogService.findAll(query); }
+    reorder(dto) { return this.blogService.reorder(dto.items); }
     findOne(id) { return this.blogService.findOne(id); }
     update(id, dto) { return this.blogService.update(id, dto); }
     togglePublish(id) { return this.blogService.togglePublish(id); }
@@ -137,6 +139,17 @@ __decorate([
     __metadata("design:paramtypes", [blog_pagination_dto_1.BlogPaginationDto]),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, common_1.Patch)('reorder'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [reorder_dto_1.ReorderDto]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "reorder", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),

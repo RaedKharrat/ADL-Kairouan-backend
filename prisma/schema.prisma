@@ -175,6 +175,7 @@ model Project {
   featured    Boolean  @default(false)
   status      PublishStatus @default(DRAFT)
   publishedAt DateTime?
+  order       Int           @default(0)
 
   categoryId  String?
   category    ProjectCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -202,6 +203,7 @@ model Project {
   @@index([slug])
   @@index([status])
   @@index([featured])
+  @@index([order])
   @@index([categoryId])
   @@index([deletedAt])
   @@map("projects")
@@ -271,6 +273,7 @@ model BlogPost {
   status     PublishStatus @default(DRAFT)
   publishedAt DateTime?
   scheduledAt DateTime?
+  order       Int           @default(0)
 
   // Reading time (auto-calculated)
   readingTime Int?
@@ -307,6 +310,7 @@ model BlogPost {
   @@index([slug])
   @@index([status])
   @@index([featured])
+  @@index([order])
   @@index([categoryId])
   @@index([authorId])
   @@index([deletedAt])
@@ -426,6 +430,7 @@ model Report {
   downloads   Int     @default(0)
   published   Boolean @default(false)
   featured    Boolean @default(false)
+  order       Int     @default(0)
 
   categoryId String?
   category   ReportCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -433,6 +438,7 @@ model Report {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([order])
   @@index([year])
   @@index([published])
   @@index([categoryId])
@@ -495,6 +501,32 @@ model Testimonial {
   @@index([featured])
   @@index([order])
   @@map("testimonials")
+}
+
+// ─────────────────────────────────────────────
+// TEAM / L'ÉQUIPE EXÉCUTIVE
+// ─────────────────────────────────────────────
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String   // e.g. "Directeur Bureau", "Directeur Exécutif"
+  department  String?  // e.g. "Pôle Stratégique", "Pôle Technique"
+  bio         String?
+  avatar      String?  // Image URL
+  email       String?
+  phone       String?
+  linkedin    String?
+  twitter     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+  @@map("team_members")
 }
 
 // ─────────────────────────────────────────────

@@ -19,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { PartnersModule } from './modules/partners/partners.module';
+import { TeamModule } from './modules/team/team.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { MediaModule } from './modules/media/media.module';
 import { VideosModule } from './modules/videos/videos.module';
@@ -81,6 +82,7 @@ import { ChatbotModule } from './modules/chatbot/chatbot.module';
     UsersModule,
     ProjectsModule,
     PartnersModule,
+    TeamModule,
     BlogModule,
     MediaModule,
     VideosModule,

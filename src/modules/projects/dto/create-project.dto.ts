@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, IsEnum, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PublishStatus } from '@prisma/client';
 
@@ -6,6 +6,11 @@ export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   title: string;
+
+  @ApiPropertyOptional({ description: "Ordre d'affichage (ranking)", default: 0 })
+  @IsOptional()
+  @IsNumber()
+  order?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
