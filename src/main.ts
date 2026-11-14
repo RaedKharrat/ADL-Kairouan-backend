@@ -21,10 +21,10 @@ async function bootstrap() {
 
     const configService = app.get(ConfigService);
     const isProduction = configService.get<string>('NODE_ENV') === 'production';
-    
+
     // On Render/Heroku, the port is provided by the environment variable PORT
     const port = process.env.PORT || configService.get<number>('PORT', 4000);
-    const frontendUrl = configService.get<string>('FRONTEND_URL', 'https://adl-kairouan.vercel.app');
+    const frontendUrl = configService.get<string>('FRONTEND_URL', 'https://adltunisie.org');
 
     // Enable graceful shutdown hooks (SIGINT, SIGTERM)
     app.enableShutdownHooks();
@@ -53,8 +53,10 @@ async function bootstrap() {
     // CORS configuration
     const allowedOrigins = [
       frontendUrl,
+      'https://adltunisie.org',
+      'https://www.adltunisie.org',
       'https://adl-kairouan.vercel.app',
-    ];
+    ].filter(Boolean);
     if (!isProduction) {
       allowedOrigins.push('http://localhost:3000', 'http://127.0.0.1:3000');
     }
